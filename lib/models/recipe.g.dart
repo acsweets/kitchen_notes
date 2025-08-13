@@ -28,7 +28,7 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       createdAt: fields[8] as DateTime,
       updatedAt: fields[9] as DateTime,
       isFavorite: fields[10] as bool,
-      notes: fields[11] as String? ?? '',
+      notes: fields[11] as String,
     );
   }
 

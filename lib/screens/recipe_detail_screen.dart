@@ -28,14 +28,18 @@ class RecipeDetailScreen extends StatelessWidget {
               );
             },
           ),
-          IconButton(
-            icon: Icon(
-              recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: recipe.isFavorite ? Colors.red : null,
-            ),
-            onPressed: () {
-              Provider.of<DataProvider>(context, listen: false)
-                  .toggleFavorite(recipe.id);
+          Consumer<DataProvider>(
+            builder: (context, dataProvider, child) {
+              final currentRecipe = dataProvider.recipes.firstWhere((r) => r.id == recipe.id);
+              return IconButton(
+                icon: Icon(
+                  currentRecipe.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: currentRecipe.isFavorite ? Colors.red : null,
+                ),
+                onPressed: () {
+                  dataProvider.toggleFavorite(recipe.id);
+                },
+              );
             },
           ),
         ],
@@ -214,6 +218,69 @@ class RecipeDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+
+                // 制作心得部分
+                Consumer<DataProvider>(
+                  builder: (context, dataProvider, child) {
+                    final cookingRecords = dataProvider.getCookingRecordsByRecipe(recipe.id);
+                    if (cookingRecords.isEmpty) return const SizedBox.shrink();
+                    
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        const Text(
+                          '制作心得',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        ...cookingRecords.take(3).map((record) => Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.blue[200]!),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${record.cookingDate.month}-${record.cookingDate.day}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        children: List.generate(5, (index) {
+                                          return Icon(
+                                            index < record.rating ? Icons.star : Icons.star_border,
+                                            size: 16,
+                                            color: Colors.amber,
+                                          );
+                                        }),
+                                      ),
+                                    ],
+                                  ),
+                                  if (record.notes.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      record.notes,
+                                      style: const TextStyle(fontSize: 14, height: 1.4),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            )),
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -276,7 +343,7 @@ class RecipeDetailScreen extends StatelessWidget {
             onPressed: () {
               if (rating > 0) {
                 Provider.of<DataProvider>(context, listen: false)
-                    .incrementCookCount(recipe.id, rating);
+                    .incrementCookCount(recipe.id, rating, noteController.text);
               }
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(

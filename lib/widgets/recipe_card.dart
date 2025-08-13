@@ -104,15 +104,19 @@ class RecipeCard extends StatelessWidget {
               ),
               
               // 收藏按钮
-              IconButton(
-                onPressed: () {
-                  Provider.of<DataProvider>(context, listen: false)
-                      .toggleFavorite(recipe.id);
+              Consumer<DataProvider>(
+                builder: (context, dataProvider, child) {
+                  final currentRecipe = dataProvider.recipes.firstWhere((r) => r.id == recipe.id);
+                  return IconButton(
+                    onPressed: () {
+                      dataProvider.toggleFavorite(recipe.id);
+                    },
+                    icon: Icon(
+                      currentRecipe.isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: currentRecipe.isFavorite ? Colors.red : Colors.grey,
+                    ),
+                  );
                 },
-                icon: Icon(
-                  recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: recipe.isFavorite ? Colors.red : Colors.grey,
-                ),
               ),
             ],
           ),

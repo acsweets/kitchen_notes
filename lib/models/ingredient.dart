@@ -30,4 +30,24 @@ class Ingredient {
     required this.unit,
     this.expiryDate,
   });
+
+  // 计算距离过期还有多少天
+  int? get daysUntilExpiry {
+    if (expiryDate == null) return null;
+    final now = DateTime.now();
+    final difference = expiryDate!.difference(DateTime(now.year, now.month, now.day));
+    return difference.inDays;
+  }
+
+  // 是否即将过期（3天内）
+  bool get isExpiringSoon {
+    final days = daysUntilExpiry;
+    return days != null && days <= 3 && days >= 0;
+  }
+
+  // 是否已过期
+  bool get isExpired {
+    final days = daysUntilExpiry;
+    return days != null && days < 0;
+  }
 }

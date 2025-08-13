@@ -6,6 +6,7 @@ import '../widgets/recipe_card.dart';
 import '../widgets/category_tabs.dart';
 import 'add_recipe_screen.dart';
 import 'recipe_detail_screen.dart';
+import 'favorite_recipes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,11 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.favorite),
             onPressed: () {
-              Provider.of<DataProvider>(context, listen: false).resetToDefaults();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('已重置为默认数据')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FavoriteRecipesScreen(),
+                ),
               );
             },
           ),
