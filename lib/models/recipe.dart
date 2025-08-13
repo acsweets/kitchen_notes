@@ -42,6 +42,37 @@ class Recipe {
   @HiveField(11)
   String notes;
 
+  // V2.0 新增字段
+  @HiveField(12)
+  String? authorId;
+
+  @HiveField(13)
+  List<String> images;
+
+  @HiveField(14)
+  List<String> tags;
+
+  @HiveField(15)
+  int likesCount;
+
+  @HiveField(16)
+  int collectionsCount;
+
+  @HiveField(17)
+  bool isPublic;
+
+  @HiveField(18)
+  String difficulty; // 'easy', 'medium', 'hard'
+
+  @HiveField(19)
+  int prepTime; // 准备时间(分钟)
+
+  @HiveField(20)
+  int cookTime; // 烹饪时间(分钟)
+
+  @HiveField(21)
+  int servings; // 份数
+
   Recipe({
     required this.id,
     required this.name,
@@ -55,5 +86,16 @@ class Recipe {
     required this.updatedAt,
     this.isFavorite = false,
     this.notes = '',
+    // V2.0 新增字段
+    this.authorId,
+    this.images = const [],
+    this.tags = const [],
+    this.likesCount = 0,
+    this.collectionsCount = 0,
+    this.isPublic = true,
+    this.difficulty = 'medium',
+    this.prepTime = 30,
+    this.cookTime = 30,
+    this.servings = 2,
   });
 }
