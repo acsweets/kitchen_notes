@@ -1,59 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/recipe.dart';
+
+import '../network/models/recipe_models.dart' as network;
+
 import '../providers/data_provider.dart';
 import 'add_recipe_screen.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
-  final Recipe recipe;
+  final Recipe? recipe;
+  final network.RecipeDetailResponse? recipeDetail;
 
-  const RecipeDetailScreen({super.key, required this.recipe});
+  const RecipeDetailScreen({super.key, this.recipe, this.recipeDetail});
+
+  network.RecipeDetailResponse get _recipe {
+    if (recipeDetail != null) return recipeDetail!;
+    if (recipe != null) return _convertToNetworkModel(recipe!);
+    throw Exception('Both recipe and recipeDetail are null');
+  }
+
+  network.RecipeDetailResponse _convertToNetworkModel(Recipe localRecipe) {
+    return network.RecipeDetailResponse(
+      id: int.tryParse(localRecipe.id) ?? 0,
+      title: localRecipe.name,
+      description: localRecipe.notes,
+      categoryId: int.tryParse(localRecipe.categoryId),
+      images: localRecipe.coverImage != null ? [localRecipe.coverImage!] : [],
+      tags: [],
+      likesCount: 0,
+      collectionsCount: 0,
+      difficulty: '中等',
+      prepTime: 15,
+      cookTime: 30,
+      servings: 2,
+      author: network.AuthorInfo(id: 0, username: '本地用户'),
+      createdAt: localRecipe.createdAt,
+      isPublic: false,
+      ingredients: localRecipe.ingredients.map((ing) => network.RecipeIngredient(
+        id: 0,
+        name: ing.name,
+        amount: ing.quantity.toString(),
+        unit: ing.unit,
+      )).toList(),
+      steps: localRecipe.steps.map((step) => network.RecipeStep(
+        id: 0,
+        stepNumber: step.order,
+        description: step.description,
+        images: [],
+      )).toList(),
+      updatedAt: localRecipe.updatedAt,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF7F0),
       appBar: AppBar(
-        title: Text(recipe.name),
+        title: Text(_recipe.title),
         backgroundColor: const Color(0xFFE8D5B7),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddRecipeScreen(recipe: recipe),
-                ),
-              );
-            },
-          ),
-          Consumer<DataProvider>(
-            builder: (context, dataProvider, child) {
-              final currentRecipe = dataProvider.recipes.firstWhere((r) => r.id == recipe.id);
-              return IconButton(
-                icon: Icon(
-                  currentRecipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: currentRecipe.isFavorite ? Colors.red : null,
-                ),
-                onPressed: () {
-                  dataProvider.toggleFavorite(recipe.id);
-                },
-              );
-            },
-          ),
+          if (recipe != null)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddRecipeScreen(recipe: recipe),
+                  ),
+                );
+              },
+            ),
+          if (recipe != null)
+            Consumer<DataProvider>(
+              builder: (context, dataProvider, child) {
+                final currentRecipe = dataProvider.recipes.firstWhere((r) => r.id == recipe!.id);
+                return IconButton(
+                  icon: Icon(
+                    currentRecipe.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: currentRecipe.isFavorite ? Colors.red : null,
+                  ),
+                  onPressed: () {
+                    dataProvider.toggleFavorite(recipe!.id);
+                  },
+                );
+              },
+            ),
         ],
       ),
       body: ListView(
         children: [
           // 封面图片
-          if (recipe.coverImage != null)
+          if (_recipe.images.isNotEmpty)
             Container(
               height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(recipe.coverImage!),
+                  image: NetworkImage(_recipe.images.first),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -78,7 +124,7 @@ class RecipeDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            recipe.name,
+                            _recipe.title,
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -87,34 +133,30 @@ class RecipeDetailScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              if (recipe.cookCount > 0) ...[
-                                Icon(Icons.local_fire_department, 
-                                     size: 20, color: Colors.orange[700]),
-                                const SizedBox(width: 4),
-                                Text('做过${recipe.cookCount}次'),
-                                const SizedBox(width: 16),
-                              ],
-                              if (recipe.rating > 0) ...[
-                                Icon(Icons.star, size: 20, color: Colors.amber[700]),
-                                const SizedBox(width: 4),
-                                Text(recipe.rating.toStringAsFixed(1)),
-                              ],
+                              Icon(Icons.favorite, size: 20, color: Colors.red),
+                              const SizedBox(width: 4),
+                              Text('${_recipe.likesCount}'),
+                              const SizedBox(width: 16),
+                              Icon(Icons.bookmark, size: 20, color: Colors.blue),
+                              const SizedBox(width: 4),
+                              Text('${_recipe.collectionsCount}'),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _showCookingDialog(context);
-                      },
-                      icon: const Icon(Icons.restaurant_menu),
-                      label: const Text('我做了这道菜'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB8860B),
-                        foregroundColor: Colors.white,
+                    if (recipe != null)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          _showCookingDialog(context);
+                        },
+                        icon: const Icon(Icons.restaurant_menu),
+                        label: const Text('我做了这道菜'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFB8860B),
+                          foregroundColor: Colors.white,
+                        ),
                       ),
-                    ),
                   ],
                 ),
 
@@ -127,10 +169,10 @@ class RecipeDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 
-                if (recipe.ingredients.isEmpty)
+                if (_recipe.ingredients.isEmpty)
                   const Text('暂无配料信息', style: TextStyle(color: Colors.grey))
                 else
-                  ...recipe.ingredients.map((ingredient) => Padding(
+                  ..._recipe.ingredients.map((ingredient) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
                           children: [
@@ -145,7 +187,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                '${ingredient.name} ${ingredient.quantity} ${ingredient.unit}',
+                                '${ingredient.name} ${ingredient.amount} ${ingredient.unit}',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -162,12 +204,10 @@ class RecipeDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                if (recipe.steps.isEmpty)
+                if (_recipe.steps.isEmpty)
                   const Text('暂无制作步骤', style: TextStyle(color: Colors.grey))
                 else
-                  ...recipe.steps.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final step = entry.value;
+                  ..._recipe.steps.map((step) {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       child: Padding(
@@ -178,7 +218,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             CircleAvatar(
                               backgroundColor: const Color(0xFFB8860B),
                               child: Text(
-                                '${index + 1}',
+                                '${step.stepNumber}',
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ),
@@ -198,7 +238,7 @@ class RecipeDetailScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // 备注部分
-                if (recipe.notes.isNotEmpty) ...[
+                if (_recipe.description.isNotEmpty) ...[
                   const Text(
                     '备注',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -213,16 +253,17 @@ class RecipeDetailScreen extends StatelessWidget {
                       border: Border.all(color: const Color(0xFFE8D5B7)),
                     ),
                     child: Text(
-                      recipe.notes,
+                      _recipe.description,
                       style: const TextStyle(fontSize: 16, height: 1.5),
                     ),
                   ),
                 ],
 
-                // 制作心得部分
-                Consumer<DataProvider>(
-                  builder: (context, dataProvider, child) {
-                    final cookingRecords = dataProvider.getCookingRecordsByRecipe(recipe.id);
+                // 制作心得部分 - 仅本地菜谱显示
+                if (recipe != null)
+                  Consumer<DataProvider>(
+                    builder: (context, dataProvider, child) {
+                      final cookingRecords = dataProvider.getCookingRecordsByRecipe(recipe!.id);
                     if (cookingRecords.isEmpty) return const SizedBox.shrink();
                     
                     return Column(
@@ -279,8 +320,8 @@ class RecipeDetailScreen extends StatelessWidget {
                             )),
                       ],
                     );
-                  },
-                ),
+                    },
+                  ),
               ],
             ),
           ),
@@ -341,9 +382,9 @@ class RecipeDetailScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              if (rating > 0) {
+              if (rating > 0 && recipe != null) {
                 Provider.of<DataProvider>(context, listen: false)
-                    .incrementCookCount(recipe.id, rating, noteController.text);
+                    .incrementCookCount(recipe!.id, rating, noteController.text);
               }
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(

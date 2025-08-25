@@ -29,13 +29,23 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       updatedAt: fields[9] as DateTime,
       isFavorite: fields[10] as bool,
       notes: fields[11] as String,
+      authorId: fields[12] as String?,
+      images: (fields[13] as List).cast<String>(),
+      tags: (fields[14] as List).cast<String>(),
+      likesCount: fields[15] as int,
+      collectionsCount: fields[16] as int,
+      isPublic: fields[17] as bool,
+      difficulty: fields[18] as String,
+      prepTime: fields[19] as int,
+      cookTime: fields[20] as int,
+      servings: fields[21] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Recipe obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(22)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +69,27 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       ..writeByte(10)
       ..write(obj.isFavorite)
       ..writeByte(11)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(12)
+      ..write(obj.authorId)
+      ..writeByte(13)
+      ..write(obj.images)
+      ..writeByte(14)
+      ..write(obj.tags)
+      ..writeByte(15)
+      ..write(obj.likesCount)
+      ..writeByte(16)
+      ..write(obj.collectionsCount)
+      ..writeByte(17)
+      ..write(obj.isPublic)
+      ..writeByte(18)
+      ..write(obj.difficulty)
+      ..writeByte(19)
+      ..write(obj.prepTime)
+      ..writeByte(20)
+      ..write(obj.cookTime)
+      ..writeByte(21)
+      ..write(obj.servings);
   }
 
   @override

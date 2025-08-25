@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/data_provider.dart';
 import '../widgets/recipe_card.dart';
 import 'recipe_detail_screen.dart';
+import '../models/recipe.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -228,7 +229,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildRecipeHeader(recipe) {
+  Widget _buildRecipeHeader(Recipe recipe) {
     return Row(
       children: [
         CircleAvatar(
@@ -268,7 +269,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildRecipeActions(recipe) {
+  Widget _buildRecipeActions(Recipe recipe) {
     return Row(
       children: [
         IconButton(
@@ -372,7 +373,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     );
   }
 
-  void _navigateToRecipeDetail(recipe) {
+  void _navigateToRecipeDetail(Recipe recipe) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -381,7 +382,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     );
   }
 
-  void _toggleLike(recipe) {
+  void _toggleLike(Recipe recipe) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     // 这里应该调用点赞API，暂时模拟本地操作
     recipe.likesCount += recipe.isFavorite ? -1 : 1;
@@ -396,7 +397,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     );
   }
 
-  void _collectRecipe(recipe) {
+  void _collectRecipe(Recipe recipe) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     recipe.collectionsCount++;
     dataProvider.updateRecipe(recipe);
@@ -409,13 +410,13 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     );
   }
 
-  void _shareRecipe(recipe) {
+  void _shareRecipe(Recipe recipe) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('分享功能开发中...')),
     );
   }
 
-  void _addToMyRecipes(recipe) {
+  void _addToMyRecipes(Recipe recipe) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     
     // 检查是否已经收藏

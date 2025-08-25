@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import 'package:uuid/uuid.dart';
-import '../providers/data_provider.dart';
+
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
-import '../models/recipe_step.dart';
+import '../models/recipe_step.dart' as local;
+import '../services/api_service.dart';
+import '../network/models/category_models.dart';
+import '../network/models/recipe_models.dart' as network;
+import 'category_management_screen.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   final Recipe? recipe; // 编辑模式传入菜谱
@@ -19,16 +23,41 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _notesController = TextEditingController();
-  String _selectedCategoryId = '';
+  final _difficultyController = TextEditingController(text: '中等');
+  final _prepTimeController = TextEditingController(text: '15');
+  final _cookTimeController = TextEditingController(text: '30');
+  final _servingsController = TextEditingController(text: '2');
+  int? _selectedCategoryId;
   final List<Ingredient> _ingredients = [];
-  final List<RecipeStep> _steps = [];
+  final List<local.RecipeStep> _steps = [];
+  List<CategoryResponse> _categories = [];
+  bool _isPublic = true;
+  bool _isLoading = false;
   bool get _isEditing => widget.recipe != null;
 
   @override
   void initState() {
     super.initState();
+    _loadCategories();
     if (_isEditing) {
       _initializeEditData();
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await ApiService.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('加载类别失败: $e')),
+        );
+      }
     }
   }
 
@@ -36,7 +65,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     final recipe = widget.recipe!;
     _nameController.text = recipe.name;
     _notesController.text = recipe.notes;
-    _selectedCategoryId = recipe.categoryId;
+    // 本地模型的categoryId是String，需要转换
+    _selectedCategoryId = int.tryParse(recipe.categoryId);
     _ingredients.addAll(recipe.ingredients);
     _steps.addAll(recipe.steps);
   }
@@ -49,10 +79,19 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         title: Text(_isEditing ? '编辑菜谱' : '添加菜谱'),
         backgroundColor: const Color(0xFFE8D5B7),
         actions: [
-          TextButton(
-            onPressed: _saveRecipe,
-            child: const Text('保存', style: TextStyle(color: Colors.black87)),
-          ),
+          _isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : TextButton(
+                  onPressed: _saveRecipe,
+                  child: const Text('保存', style: TextStyle(color: Colors.black87)),
+                ),
         ],
       ),
       body: Form(
@@ -80,34 +119,133 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
             const SizedBox(height: 16),
             
             // 分类选择
-            Consumer<DataProvider>(
-              builder: (context, dataProvider, child) {
-                return DropdownButtonFormField<String>(
-                  value: _selectedCategoryId.isEmpty ? null : _selectedCategoryId,
-                  decoration: const InputDecoration(
-                    labelText: '分类',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _selectedCategoryId,
+                    decoration: const InputDecoration(
+                      labelText: '分类',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    items: _categories.map<DropdownMenuItem<int>>((category) {
+                      return DropdownMenuItem<int>(
+                        value: category.id,
+                        child: Row(
+                          children: [
+                            Text(category.icon),
+                            const SizedBox(width: 8),
+                            Text(category.name),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategoryId = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return '请选择分类';
+                      }
+                      return null;
+                    },
                   ),
-                  items: dataProvider.recipeCategories.map<DropdownMenuItem<String>>((category) {
-                    return DropdownMenuItem<String>(
-                      value: category.id,
-                      child: Text(category.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategoryId = value ?? '';
-                    });
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CategoryManagementScreen(),
+                      ),
+                    ).then((_) => _loadCategories());
                   },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '请选择分类';
-                    }
-                    return null;
-                  },
-                );
+                  icon: const Icon(Icons.settings),
+                  tooltip: '管理分类',
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 难度、时间、份数
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _difficultyController,
+                    decoration: const InputDecoration(
+                      labelText: '难度',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    controller: _prepTimeController,
+                    decoration: const InputDecoration(
+                      labelText: '准备时间(分钟)',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _cookTimeController,
+                    decoration: const InputDecoration(
+                      labelText: '烹饪时间(分钟)',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    controller: _servingsController,
+                    decoration: const InputDecoration(
+                      labelText: '份数',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 公开设置
+            SwitchListTile(
+              title: const Text('公开菜谱'),
+              subtitle: const Text('其他用户可以看到这个菜谱'),
+              value: _isPublic,
+              onChanged: (value) {
+                setState(() {
+                  _isPublic = value;
+                });
               },
             ),
             
@@ -242,43 +380,55 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     });
   }
 
-  void _saveRecipe() {
+  void _saveRecipe() async {
     if (_formKey.currentState!.validate()) {
-      final now = DateTime.now();
+      setState(() => _isLoading = true);
       
-      if (_isEditing) {
-        // 编辑模式
-        final updatedRecipe = Recipe(
-          id: widget.recipe!.id,
-          name: _nameController.text,
+      try {
+        final request = network.CreateRecipeRequest(
+          title: _nameController.text,
+          description: _notesController.text,
           categoryId: _selectedCategoryId,
-          coverImage: widget.recipe!.coverImage,
-          ingredients: _ingredients,
-          steps: _steps,
-          cookCount: widget.recipe!.cookCount,
-          rating: widget.recipe!.rating,
-          createdAt: widget.recipe!.createdAt,
-          updatedAt: now,
-          isFavorite: widget.recipe!.isFavorite,
-          notes: _notesController.text,
+          images: [],
+          tags: [],
+          difficulty: _difficultyController.text,
+          prepTime: int.tryParse(_prepTimeController.text) ?? 15,
+          cookTime: int.tryParse(_cookTimeController.text) ?? 30,
+          servings: int.tryParse(_servingsController.text) ?? 2,
+          isPublic: _isPublic,
+          ingredients: _ingredients.map((ing) => network.RecipeIngredient(
+            id: 0,
+            name: ing.name,
+            amount: ing.quantity.toString(),
+            unit: ing.unit,
+          )).toList(),
+          steps: _steps.map((step) => network.RecipeStep(
+            id: 0,
+            stepNumber: step.order,
+            description: step.description,
+            images: [],
+          )).toList(),
         );
-        Provider.of<DataProvider>(context, listen: false).updateRecipe(updatedRecipe);
-      } else {
-        // 新增模式
-        final recipe = Recipe(
-          id: const Uuid().v4(),
-          name: _nameController.text,
-          categoryId: _selectedCategoryId,
-          ingredients: _ingredients,
-          steps: _steps,
-          createdAt: now,
-          updatedAt: now,
-          notes: _notesController.text,
-        );
-        Provider.of<DataProvider>(context, listen: false).addRecipe(recipe);
+        
+        await ApiService.createRecipe(request);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('菜谱保存成功')),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('保存失败: $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
-      
-      Navigator.pop(context);
     }
   }
 
@@ -286,6 +436,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   void dispose() {
     _nameController.dispose();
     _notesController.dispose();
+    _difficultyController.dispose();
+    _prepTimeController.dispose();
+    _cookTimeController.dispose();
+    _servingsController.dispose();
     super.dispose();
   }
 }
@@ -356,7 +510,7 @@ class _IngredientDialogState extends State<_IngredientDialog> {
 // 添加步骤对话框
 class _StepDialog extends StatefulWidget {
   final int stepNumber;
-  final Function(RecipeStep) onAdd;
+  final Function(local.RecipeStep) onAdd;
 
   const _StepDialog({required this.stepNumber, required this.onAdd});
 
@@ -384,7 +538,7 @@ class _StepDialogState extends State<_StepDialog> {
         TextButton(
           onPressed: () {
             if (_descriptionController.text.isNotEmpty) {
-              final step = RecipeStep(
+              final step = local.RecipeStep(
                 order: widget.stepNumber,
                 description: _descriptionController.text,
               );

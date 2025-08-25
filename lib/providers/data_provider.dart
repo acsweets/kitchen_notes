@@ -6,6 +6,8 @@ import '../models/ingredient.dart';
 import '../models/recipe.dart';
 import '../models/recipe_step.dart';
 import '../models/cooking_record.dart';
+import '../models/user.dart';
+import '../models/recommendation.dart';
 import '../data/default_data.dart';
 import '../data/default_recipes.dart';
 
@@ -14,11 +16,15 @@ class DataProvider extends ChangeNotifier {
   late Box<Ingredient> _ingredientBox;
   late Box<Recipe> _recipeBox;
   late Box<CookingRecord> _cookingRecordBox;
+  late Box<User> _userBox;
+  late Box<Recommendation> _recommendationBox;
 
   List<model.Category> _categories = [];
   List<Ingredient> _ingredients = [];
   List<Recipe> _recipes = [];
   List<CookingRecord> _cookingRecords = [];
+  List<User> _users = [];
+  List<Recommendation> _recommendations = [];
 
   List<model.Category> get categories => _categories;
   List<Ingredient> get ingredients => _ingredients;
@@ -52,12 +58,20 @@ class DataProvider extends ChangeNotifier {
     if (!Hive.isAdapterRegistered(4)) {
       Hive.registerAdapter(CookingRecordAdapter());
     }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(UserAdapter());
+    }
+    if (!Hive.isAdapterRegistered(6)) {
+      Hive.registerAdapter(RecommendationAdapter());
+    }
 
     // 打开数据库
     _categoryBox = await Hive.openBox<model.Category>('categories');
     _ingredientBox = await Hive.openBox<Ingredient>('ingredients');
     _recipeBox = await Hive.openBox<Recipe>('recipes');
     _cookingRecordBox = await Hive.openBox<CookingRecord>('cooking_records');
+    _userBox = await Hive.openBox<User>('users');
+    _recommendationBox = await Hive.openBox<Recommendation>('recommendations');
 
     // 初始化默认数据
     await _initializeDefaultData();
@@ -119,6 +133,8 @@ class DataProvider extends ChangeNotifier {
     _ingredients = _ingredientBox.values.toList();
     _recipes = _recipeBox.values.toList();
     _cookingRecords = _cookingRecordBox.values.toList();
+    _users = _userBox.values.toList();
+    _recommendations = _recommendationBox.values.toList();
     notifyListeners();
   }
 
@@ -171,6 +187,19 @@ class DataProvider extends ChangeNotifier {
     final sorted = List<Recipe>.from(_recipes);
     sorted.sort((a, b) => b.cookCount.compareTo(a.cookCount));
     return sorted.take(10).toList();
+  }
+
+  // V2.0 新增方法
+  List<Recipe> get topRatedRecipes {
+    final sorted = List<Recipe>.from(_recipes);
+    sorted.sort((a, b) => b.rating.compareTo(a.rating));
+    return sorted;
+  }
+
+  List<Recipe> get recentRecipes {
+    final sorted = List<Recipe>.from(_recipes);
+    sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted;
   }
 
   // 切换收藏状态

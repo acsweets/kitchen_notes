@@ -5,6 +5,7 @@ import '../services/recommendation_service.dart';
 import '../models/recommendation.dart';
 import '../widgets/recipe_card.dart';
 import 'recipe_detail_screen.dart';
+import '../models/recipe.dart';
 
 class SmartRecommendationScreen extends StatefulWidget {
   const SmartRecommendationScreen({super.key});
@@ -27,22 +28,34 @@ class _SmartRecommendationScreenState extends State<SmartRecommendationScreen> {
   void _loadRecommendations() async {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     
-    final ingredientRecommendations = _recommendationService.getIngredientBasedRecommendations(
-      'current_user', // 实际应该从用户系统获取
-      dataProvider.ingredients,
-      dataProvider.recipes,
-    );
+    try {
+      // 本地推荐算法
+      final ingredientRecommendations = _recommendationService.getIngredientBasedRecommendations(
+        'current_user',
+        dataProvider.ingredients,
+        dataProvider.recipes,
+      );
 
-    final expiryRecommendations = _recommendationService.getExpiryAlertRecommendations(
-      'current_user',
-      dataProvider.expiringSoonIngredients,
-      dataProvider.recipes,
-    );
+      final expiryRecommendations = _recommendationService.getExpiryAlertRecommendations(
+        'current_user',
+        dataProvider.expiringSoonIngredients,
+        dataProvider.recipes,
+      );
 
-    setState(() {
-      _recommendations = [...expiryRecommendations, ...ingredientRecommendations];
-      _isLoading = false;
-    });
+      setState(() {
+        _recommendations = [...expiryRecommendations, ...ingredientRecommendations];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('加载推荐失败：$e')),
+        );
+      }
+    }
   }
 
   @override
@@ -147,10 +160,14 @@ class _SmartRecommendationScreenState extends State<SmartRecommendationScreen> {
   Widget _buildRecommendationCard(Recommendation recommendation, Color backgroundColor) {
     return Consumer<DataProvider>(
       builder: (context, dataProvider, child) {
-        final recipe = dataProvider.recipes.firstWhere(
-          (r) => r.id == recommendation.recipeId,
-          orElse: () => throw Exception('Recipe not found'),
-        );
+        Recipe? recipe;
+        try {
+          recipe = dataProvider.recipes.firstWhere(
+            (r) => r.id == recommendation.recipeId,
+          );
+        } catch (e) {
+          return const SizedBox.shrink();
+        }
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -177,7 +194,7 @@ class _SmartRecommendationScreenState extends State<SmartRecommendationScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RecipeDetailScreen(recipe: recipe),
+                        builder: (context) => RecipeDetailScreen(recipe: recipe!),
                       ),
                     );
                   },
@@ -192,7 +209,7 @@ class _SmartRecommendationScreenState extends State<SmartRecommendationScreen> {
                     if (recommendation.type == 'ingredient_match')
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => _showShoppingList(recipe),
+                          onPressed: () => _showShoppingList(recipe!),
                           icon: const Icon(Icons.shopping_cart, size: 16),
                           label: const Text('购物清单'),
                           style: ElevatedButton.styleFrom(
@@ -208,7 +225,7 @@ class _SmartRecommendationScreenState extends State<SmartRecommendationScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => RecipeDetailScreen(recipe: recipe),
+                              builder: (context) => RecipeDetailScreen(recipe: recipe!),
                             ),
                           );
                         },
@@ -278,7 +295,7 @@ class _SmartRecommendationScreenState extends State<SmartRecommendationScreen> {
     return const SizedBox.shrink();
   }
 
-  void _showShoppingList(recipe) {
+  void _showShoppingList(Recipe recipe) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     final shoppingList = _recommendationService.generateShoppingList(
       recipe,
