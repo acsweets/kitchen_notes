@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../widgets/recipe_card.dart';
 import 'recipe_detail_screen.dart';
@@ -10,10 +11,10 @@ class FavoriteRecipesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('收藏菜谱'),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
       ),
       body: Consumer<DataProvider>(
         builder: (context, dataProvider, child) {

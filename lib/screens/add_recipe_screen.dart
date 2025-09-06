@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
@@ -44,10 +45,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(_isEditing ? '编辑菜谱' : '添加菜谱'),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           TextButton(
             onPressed: _saveRecipe,

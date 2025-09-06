@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import '../models/category.dart' as model;
 
 class CategoryTabs extends StatelessWidget {
@@ -51,8 +52,8 @@ class CategoryTabs extends StatelessWidget {
       onSelected: (selected) {
         onCategorySelected(selected ? categoryId : '');
       },
-      backgroundColor: Colors.white,
-      selectedColor: const Color(0xFFB8860B),
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.primary,
       labelStyle: TextStyle(
         color: isSelected ? Colors.white : Colors.black87,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -60,7 +61,7 @@ class CategoryTabs extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? const Color(0xFFB8860B) : Colors.grey[300]!,
+          color: isSelected ? AppColors.primary : Colors.grey[300]!,
         ),
       ),
     );

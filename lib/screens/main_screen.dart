@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'home_screen.dart';
 import 'ingredient_management_screen.dart';
 import 'recipe_category_management_screen.dart';
@@ -33,9 +34,9 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFE8D5B7),
-        selectedItemColor: const Color(0xFFB8860B),
-        unselectedItemColor: Colors.grey[600],
+        backgroundColor: AppColors.surface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.restaurant_menu),

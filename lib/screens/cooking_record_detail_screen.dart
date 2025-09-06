@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import '../theme/app_colors.dart';
 import '../models/cooking_record.dart';
 import '../providers/data_provider.dart';
 
@@ -12,10 +13,10 @@ class CookingRecordDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(record.recipeName),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -178,9 +179,9 @@ class CookingRecordDetailScreen extends StatelessWidget {
                     final recipe = dataProvider.recipes.firstWhere((r) => r.id == record.recipeId);
                     return Card(
                       child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xFFB8860B),
-                          child: Icon(Icons.restaurant_menu, color: Colors.white),
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.primary,
+                          child: const Icon(Icons.restaurant_menu, color: Colors.white),
                         ),
                         title: const Text('查看菜谱'),
                         subtitle: Text(recipe.name),

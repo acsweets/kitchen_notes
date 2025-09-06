@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../models/ingredient.dart';
 import '../models/category.dart' as model;
@@ -22,10 +23,10 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('食材管理'),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.category),
@@ -38,7 +39,7 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
           // 搜索框
           Container(
             padding: const EdgeInsets.all(16),
-            color: const Color(0xFFE8D5B7),
+            color: AppColors.backgroundSecondary,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -157,7 +158,7 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addIngredient(),
-        backgroundColor: const Color(0xFFB8860B),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

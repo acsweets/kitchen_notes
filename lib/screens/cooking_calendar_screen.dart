@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
+import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../models/cooking_record.dart';
 import 'cooking_record_detail_screen.dart';
@@ -20,10 +21,10 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('做菜日历'),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.today),
@@ -41,7 +42,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
           // 月份导航
           Container(
             padding: const EdgeInsets.all(16),
-            color: const Color(0xFFE8D5B7),
+            color: AppColors.backgroundSecondary,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -108,7 +109,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
                           return Card(
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: const Color(0xFFB8860B),
+                                backgroundColor: AppColors.primary,
                                 child: Text(
                                   record.recipeName.substring(0, 1),
                                   style: const TextStyle(color: Colors.white),
@@ -154,7 +155,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addCookingRecord(),
-        backgroundColor: const Color(0xFFB8860B),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -205,13 +206,13 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: isSelected 
-                  ? const Color(0xFFB8860B)
+                  ? AppColors.primary
                   : isToday 
-                      ? const Color(0xFFE8D5B7)
+                      ? AppColors.backgroundSecondary
                       : Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isSelected ? const Color(0xFFB8860B) : Colors.grey[300]!,
+                color: isSelected ? AppColors.primary : Colors.grey[300]!,
               ),
             ),
             child: Column(
@@ -233,7 +234,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.white : const Color(0xFFB8860B),
+                          color: isSelected ? Colors.white : AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -243,7 +244,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
                           '${dayRecords.length}',
                           style: TextStyle(
                             fontSize: 10,
-                            color: isSelected ? Colors.white : const Color(0xFFB8860B),
+                            color: isSelected ? Colors.white : AppColors.primary,
                           ),
                         ),
                       ],

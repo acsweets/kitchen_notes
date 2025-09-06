@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/data_provider.dart';
 import 'screens/main_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,14 +17,7 @@ class MyApp extends StatelessWidget {
       create: (context) => DataProvider()..initializeData(),
       child: MaterialApp(
         title: '灶边记',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFB8860B),
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-          fontFamily: 'PingFang SC',
-        ),
+        theme: AppTheme.lightTheme,
         home: const MainScreen(),
         debugShowCheckedModeBanner: false,
       ),

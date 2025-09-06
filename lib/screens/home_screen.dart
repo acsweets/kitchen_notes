@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../models/recipe.dart';
 import '../widgets/recipe_card.dart';
@@ -23,10 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('灶边记', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
         elevation: 0,
         actions: [
           IconButton(
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 搜索框
           Container(
             padding: const EdgeInsets.all(16),
-            color: const Color(0xFFE8D5B7),
+            color: AppColors.backgroundSecondary,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -217,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
           );
         },
-        backgroundColor: const Color(0xFFB8860B),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

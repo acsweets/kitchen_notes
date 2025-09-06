@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../models/category.dart' as model;
 
@@ -10,10 +11,10 @@ class RecipeCategoryManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('菜谱分类管理'),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
       ),
       body: Consumer<DataProvider>(
         builder: (context, dataProvider, child) {
@@ -30,7 +31,7 @@ class RecipeCategoryManagementScreen extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: const Color(0xFFB8860B),
+                    backgroundColor: AppColors.primary,
                     child: Text(
                       category.name.substring(0, 1),
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -92,7 +93,7 @@ class RecipeCategoryManagementScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addCategory(context),
-        backgroundColor: const Color(0xFFB8860B),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

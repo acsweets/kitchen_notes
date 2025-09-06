@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../theme/app_colors.dart';
 import '../models/recipe.dart';
 import '../providers/data_provider.dart';
 import 'add_recipe_screen.dart';
@@ -12,10 +13,10 @@ class RecipeDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(recipe.name),
-        backgroundColor: const Color(0xFFE8D5B7),
+        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -61,7 +62,7 @@ class RecipeDetailScreen extends StatelessWidget {
           else
             Container(
               height: 200,
-              color: const Color(0xFFE8D5B7),
+              color: AppColors.backgroundSecondary,
               child: const Icon(Icons.restaurant, size: 80, color: Colors.grey),
             ),
 
@@ -111,7 +112,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       icon: const Icon(Icons.restaurant_menu),
                       label: const Text('我做了这道菜'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB8860B),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                       ),
                     ),
@@ -137,8 +138,8 @@ class RecipeDetailScreen extends StatelessWidget {
                             Container(
                               width: 6,
                               height: 6,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFB8860B),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -176,7 +177,7 @@ class RecipeDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CircleAvatar(
-                              backgroundColor: const Color(0xFFB8860B),
+                              backgroundColor: AppColors.primary,
                               child: Text(
                                 '${index + 1}',
                                 style: const TextStyle(color: Colors.white),
@@ -210,7 +211,7 @@ class RecipeDetailScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF8DC),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFE8D5B7)),
+                      border: Border.all(color: AppColors.backgroundSecondary),
                     ),
                     child: Text(
                       recipe.notes,
