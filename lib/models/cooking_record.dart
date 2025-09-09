@@ -1,28 +1,10 @@
-import 'package:hive/hive.dart';
-
-part 'cooking_record.g.dart';
-
-@HiveType(typeId: 4)
 class CookingRecord {
-  @HiveField(0)
   String id;
-
-  @HiveField(1)
   String recipeId;
-
-  @HiveField(2)
   String recipeName;
-
-  @HiveField(3)
   DateTime cookingDate;
-
-  @HiveField(4)
   double rating;
-
-  @HiveField(5)
   String notes;
-
-  @HiveField(6)
   List<String> images;
 
   CookingRecord({
@@ -34,4 +16,30 @@ class CookingRecord {
     this.notes = '',
     this.images = const [],
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'recipe_id': recipeId,
+      'recipe_name': recipeName,
+      'cooking_date': cookingDate.millisecondsSinceEpoch,
+      'rating': rating,
+      'notes': notes,
+      'images': images.join(','),
+    };
+  }
+
+  factory CookingRecord.fromMap(Map<String, dynamic> map) {
+    return CookingRecord(
+      id: map['id'],
+      recipeId: map['recipe_id'],
+      recipeName: map['recipe_name'],
+      cookingDate: DateTime.fromMillisecondsSinceEpoch(map['cooking_date']),
+      rating: map['rating'],
+      notes: map['notes'] ?? '',
+      images: map['images'].toString().isEmpty 
+          ? [] 
+          : map['images'].toString().split(','),
+    );
+  }
 }

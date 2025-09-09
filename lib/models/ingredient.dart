@@ -1,25 +1,9 @@
-import 'package:hive/hive.dart';
-
-part 'ingredient.g.dart';
-
-@HiveType(typeId: 1)
 class Ingredient {
-  @HiveField(0)
   String id;
-
-  @HiveField(1)
   String name;
-
-  @HiveField(2)
   String categoryId;
-
-  @HiveField(3)
   double quantity;
-
-  @HiveField(4)
   String unit;
-
-  @HiveField(5)
   DateTime? expiryDate;
 
   Ingredient({
@@ -30,6 +14,30 @@ class Ingredient {
     required this.unit,
     this.expiryDate,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'category_id': categoryId,
+      'quantity': quantity,
+      'unit': unit,
+      'expiry_date': expiryDate?.millisecondsSinceEpoch,
+    };
+  }
+
+  factory Ingredient.fromMap(Map<String, dynamic> map) {
+    return Ingredient(
+      id: map['id'],
+      name: map['name'],
+      categoryId: map['category_id'],
+      quantity: map['quantity'],
+      unit: map['unit'],
+      expiryDate: map['expiry_date'] != null 
+          ? DateTime.fromMillisecondsSinceEpoch(map['expiry_date'])
+          : null,
+    );
+  }
 
   // 计算距离过期还有多少天
   int? get daysUntilExpiry {

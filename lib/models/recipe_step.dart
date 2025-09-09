@@ -1,16 +1,6 @@
-import 'package:hive/hive.dart';
-
-part 'recipe_step.g.dart';
-
-@HiveType(typeId: 2)
 class RecipeStep {
-  @HiveField(0)
   int order;
-
-  @HiveField(1)
   String description;
-
-  @HiveField(2)
   List<String> images;
 
   RecipeStep({
@@ -18,4 +8,22 @@ class RecipeStep {
     required this.description,
     this.images = const [],
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'step_order': order,
+      'description': description,
+      'images': images.join(','),
+    };
+  }
+
+  factory RecipeStep.fromMap(Map<String, dynamic> map) {
+    return RecipeStep(
+      order: map['step_order'],
+      description: map['description'],
+      images: map['images'].toString().isEmpty 
+          ? [] 
+          : map['images'].toString().split(','),
+    );
+  }
 }
