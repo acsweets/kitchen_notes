@@ -6,6 +6,8 @@ import '../providers/data_provider.dart';
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import '../models/recipe_step.dart';
+import '../widgets/custom_text_field.dart';
+import '../widgets/custom_buttons.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   final Recipe? recipe; // 编辑模式传入菜谱
@@ -45,14 +47,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(_isEditing ? '编辑菜谱' : '添加菜谱'),
-        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           TextButton(
             onPressed: _saveRecipe,
-            child: const Text('保存', style: TextStyle(color: Colors.black87)),
+            child: const Text('保存'),
           ),
         ],
       ),
@@ -66,9 +66,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
               controller: _nameController,
               decoration: const InputDecoration(
                 labelText: '菜名',
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -87,9 +84,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   value: _selectedCategoryId.isEmpty ? null : _selectedCategoryId,
                   decoration: const InputDecoration(
                     labelText: '分类',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
                   ),
                   items: dataProvider.recipeCategories.map<DropdownMenuItem<String>>((category) {
                     return DropdownMenuItem<String>(
@@ -115,15 +109,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
             const SizedBox(height: 16),
             
             // 备注输入
-            TextFormField(
+            CustomTextField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: '备注（可选）',
-                hintText: '记录一些制作心得或特殊做法...',
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-              ),
+              labelText: '备注（可选）',
+              hintText: '记录一些制作心得或特殊做法...',
               maxLines: 3,
             ),
             
@@ -133,11 +122,11 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('配料', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextButton.icon(
+                Text('配料', style: Theme.of(context).textTheme.headlineLarge),
+                SecondaryButton(
+                  text: '添加配料',
+                  icon: Icons.add,
                   onPressed: _addIngredient,
-                  icon: const Icon(Icons.add),
-                  label: const Text('添加配料'),
                 ),
               ],
             ),
@@ -166,11 +155,11 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('制作步骤', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextButton.icon(
+                Text('制作步骤', style: Theme.of(context).textTheme.headlineLarge),
+                SecondaryButton(
+                  text: '添加步骤',
+                  icon: Icons.add,
                   onPressed: _addStep,
-                  icon: const Icon(Icons.add),
-                  label: const Text('添加步骤'),
                 ),
               ],
             ),
@@ -313,27 +302,30 @@ class _IngredientDialogState extends State<_IngredientDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
+          CustomTextField(
             controller: _nameController,
-            decoration: const InputDecoration(labelText: '配料名称'),
+            labelText: '配料名称',
           ),
-          TextField(
+          const SizedBox(height: 16),
+          CustomTextField(
             controller: _quantityController,
-            decoration: const InputDecoration(labelText: '数量'),
+            labelText: '数量',
             keyboardType: TextInputType.number,
           ),
-          TextField(
+          const SizedBox(height: 16),
+          CustomTextField(
             controller: _unitController,
-            decoration: const InputDecoration(labelText: '单位'),
+            labelText: '单位',
           ),
         ],
       ),
       actions: [
-        TextButton(
+        SecondaryButton(
+          text: '取消',
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
         ),
-        TextButton(
+        PrimaryButton(
+          text: '添加',
           onPressed: () {
             if (_nameController.text.isNotEmpty) {
               final ingredient = Ingredient(
@@ -347,7 +339,6 @@ class _IngredientDialogState extends State<_IngredientDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('添加'),
         ),
       ],
     );
@@ -372,17 +363,18 @@ class _StepDialogState extends State<_StepDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('添加步骤 ${widget.stepNumber}'),
-      content: TextField(
+      content: CustomTextField(
         controller: _descriptionController,
-        decoration: const InputDecoration(labelText: '步骤描述'),
+        labelText: '步骤描述',
         maxLines: 3,
       ),
       actions: [
-        TextButton(
+        SecondaryButton(
+          text: '取消',
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
         ),
-        TextButton(
+        PrimaryButton(
+          text: '添加',
           onPressed: () {
             if (_descriptionController.text.isNotEmpty) {
               final step = RecipeStep(
@@ -393,7 +385,6 @@ class _StepDialogState extends State<_StepDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('添加'),
         ),
       ],
     );

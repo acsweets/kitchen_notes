@@ -13,10 +13,8 @@ class RecipeDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(recipe.name),
-        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -62,7 +60,7 @@ class RecipeDetailScreen extends StatelessWidget {
           else
             Container(
               height: 200,
-              color: AppColors.backgroundSecondary,
+              color: AppColors.surfaceVariant,
               child: const Icon(Icons.restaurant, size: 80, color: Colors.grey),
             ),
 
@@ -211,7 +209,7 @@ class RecipeDetailScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF8DC),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.backgroundSecondary),
+                      border: Border.all(color: AppColors.inputBorder),
                     ),
                     child: Text(
                       recipe.notes,

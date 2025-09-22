@@ -11,10 +11,8 @@ class RecipeCategoryManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('菜谱分类管理'),
-        backgroundColor: AppColors.backgroundSecondary,
       ),
       body: Consumer<DataProvider>(
         builder: (context, dataProvider, child) {

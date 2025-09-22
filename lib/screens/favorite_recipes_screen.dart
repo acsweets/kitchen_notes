@@ -11,10 +11,8 @@ class FavoriteRecipesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('收藏菜谱'),
-        backgroundColor: AppColors.backgroundSecondary,
       ),
       body: Consumer<DataProvider>(
         builder: (context, dataProvider, child) {

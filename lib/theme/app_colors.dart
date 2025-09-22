@@ -1,31 +1,48 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
+  // 主色调
+  static const Color primary = Color(0xFF4CAF50);
+  static const Color onPrimary = Colors.white;
+  static const Color primaryContainer = Color(0xFFE8F5E8);
+  static const Color onPrimaryContainer = Color(0xFF2E7D32);
+  
+  // 辅助色
+  static const Color secondary = Color(0xFFA5D6A7);
+  static const Color onSecondary = Color(0xFF1B5E20);
+  static const Color secondaryContainer = Color(0xFFC8E6C9);
+  static const Color onSecondaryContainer = Color(0xFF1B5E20);
+  
+  // 表面色
+  static const Color surface = Color(0xFFFAFAFA);
+  static const Color onSurface = Color(0xFF1B1B1B);
+  static const Color surfaceVariant = Color(0xFFF1F8E9);
+  static const Color onSurfaceVariant = Color(0xFF424242);
+  
   // 背景色
-  static const Color background = Color(0xFFFFF5E1); // 柔和奶油白色
-  static const Color backgroundSecondary = Color(0xFFF5F5DC); // 浅米色
+  static const Color background = Color(0xFFFAFAFA);
+  static const Color onBackground = Color(0xFF1B1B1B);
   
-  // 主要按钮和突出元素
-  static const Color primary = Color(0xFFFF7F32); // 胡椒橙
-  static const Color secondary = Color(0xFF6DBE45); // 草绿色
-  
-  // 次要按钮和链接
-  static const Color accent = Color(0xFFFF4F5A); // 番茄红
-  static const Color highlight = Color(0xFFFFCC00); // 金黄色
+  // 状态色
+  static const Color error = Color(0xFFE53935);
+  static const Color onError = Colors.white;
+  static const Color warning = Color(0xFFFF9800);
+  static const Color success = Color(0xFF4CAF50);
   
   // 文字颜色
-  static const Color textPrimary = Color(0xFF333333); // 深灰色
-  static const Color textSecondary = Color(0xFFA0A0A0); // 淡灰色
+  static const Color textPrimary = Color(0xFF1B1B1B);
+  static const Color textSecondary = Color(0xFF424242);
+  static const Color textTertiary = Color(0xFF757575);
   
-  // 图标和其他小元素
-  static const Color iconPrimary = Color(0xFF8B4513); // 深棕色
+  // 输入框相关
+  static const Color inputFill = Colors.white;
+  static const Color inputBorder = Color(0xFFE0E0E0);
+  static const Color inputFocused = Color(0xFF4CAF50);
+  static const Color inputError = Color(0xFFE53935);
+  static const Color searchFill = Color(0xFFE8F5E8);
   
-  // 状态颜色
-  static const Color success = secondary;
-  static const Color warning = highlight;
-  static const Color error = accent;
-  
-  // 卡片和表面颜色
-  static const Color surface = Colors.white;
-  static const Color surfaceVariant = backgroundSecondary;
+  // 按钮状态色
+  static const Color buttonHovered = Color(0xFF81C784);
+  static const Color buttonPressed = Color(0xFF2E7D32);
+  static const Color buttonDisabled = Color(0xFFBDBDBD);
 }

@@ -13,10 +13,8 @@ class CookingRecordDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(record.recipeName),
-        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {

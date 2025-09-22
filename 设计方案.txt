@@ -1,0 +1,545 @@
+# 厨边记 Flutter UI 设计系统规范
+
+主要特点：
+
+主色调：使用Material Design的绿色系列，从深绿到薄荷绿的渐变
+清新感：大量使用淡绿和薄荷绿作为背景色
+层次分明：通过不同深浅的绿色建立视觉层次
+功能性：为不同状态（新鲜食材、过期提醒等）设计了专门的配色
+
+配色方案涵盖了您提到的所有功能场景：
+
+菜谱管理：卡片式布局配色
+食材管理：状态标识配色
+新增功能：表单和按钮配色
+分类系统：标签和筛选配色
+推荐算法：匹配度显示配色
+
+## 🎨 Flutter 主题系统设计
+
+### ThemeData 配置方案
+
+#### 主色调定义 (ColorScheme)
+```
+Primary Colors:
+├── primary: Color(0xFF4CAF50)           // 主绿色
+├── onPrimary: Colors.white              // 主色上的文字
+├── primaryContainer: Color(0xFFE8F5E8)  // 主色容器
+├── onPrimaryContainer: Color(0xFF2E7D32) // 主色容器上的文字
+
+Secondary Colors:
+├── secondary: Color(0xFFA5D6A7)         // 辅助绿色
+├── onSecondary: Color(0xFF1B5E20)       // 辅助色上的文字
+├── secondaryContainer: Color(0xFFC8E6C9) // 辅助色容器
+├── onSecondaryContainer: Color(0xFF1B5E20)
+
+Surface Colors:
+├── surface: Color(0xFFFAFAFA)           // 表面色
+├── onSurface: Color(0xFF1B1B1B)         // 表面上的文字
+├── surfaceVariant: Color(0xFFF1F8E9)    // 表面变体
+├── onSurfaceVariant: Color(0xFF424242)   // 表面变体上的文字
+
+Status Colors:
+├── error: Color(0xFFE53935)             // 错误色
+├── onError: Colors.white                // 错误色上的文字
+├── warning: Color(0xFFFF9800)           // 警告色 (自定义)
+├── success: Color(0xFF4CAF50)           // 成功色 (自定义)
+```
+
+#### 文字主题 (TextTheme)
+```
+TextTheme Configuration:
+├── displayLarge: 28sp, FontWeight.w700, Color(0xFF1B1B1B)    // 特大标题
+├── displayMedium: 24sp, FontWeight.w600, Color(0xFF1B1B1B)   // 大标题
+├── displaySmall: 20sp, FontWeight.w600, Color(0xFF1B1B1B)    // 页面标题
+├── headlineLarge: 18sp, FontWeight.w600, Color(0xFF1B1B1B)   // 卡片标题
+├── headlineMedium: 16sp, FontWeight.w500, Color(0xFF1B1B1B)  // 小标题
+├── bodyLarge: 16sp, FontWeight.w400, Color(0xFF1B1B1B)       // 正文大
+├── bodyMedium: 14sp, FontWeight.w400, Color(0xFF424242)      // 正文
+├── bodySmall: 12sp, FontWeight.w400, Color(0xFF757575)       // 辅助文字
+├── labelLarge: 14sp, FontWeight.w500, Color(0xFF424242)      // 按钮文字
+├── labelMedium: 12sp, FontWeight.w500, Color(0xFF757575)     // 标签文字
+└── labelSmall: 10sp, FontWeight.w500, Color(0xFF757575)      // 小标签
+```
+
+---
+
+## 🔘 Flutter 按钮组件设计
+
+### ElevatedButton 样式
+**使用场景**: 主要操作按钮
+
+**ButtonStyle 配置**:
+```
+ElevatedButtonTheme:
+├── backgroundColor: MaterialStateProperty
+│   ├── default: Color(0xFF4CAF50)
+│   ├── hovered: Color(0xFF81C784)
+│   ├── pressed: Color(0xFF2E7D32)
+│   └── disabled: Color(0xFFBDBDBD)
+├── foregroundColor: MaterialStateProperty.all(Colors.white)
+├── elevation: MaterialStateProperty
+│   ├── default: 2.0
+│   ├── hovered: 4.0
+│   ├── pressed: 1.0
+│   └── disabled: 0.0
+├── shape: RoundedRectangleBorder(borderRadius: 12.0)
+├── padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12)
+├── minimumSize: Size(0, 48)
+└── textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
+
+Large Variant:
+├── padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16)
+├── minimumSize: Size(0, 56)
+├── textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)
+└── borderRadius: 16.0
+```
+
+### OutlinedButton 样式
+**使用场景**: 次要操作按钮
+
+**ButtonStyle 配置**:
+```
+OutlinedButtonTheme:
+├── backgroundColor: MaterialStateProperty.all(Colors.transparent)
+├── foregroundColor: MaterialStateProperty
+│   ├── default: Color(0xFF4CAF50)
+│   ├── pressed: Colors.white
+│   └── disabled: Color(0xFFBDBDBD)
+├── side: MaterialStateProperty
+│   ├── default: BorderSide(color: Color(0xFF4CAF50), width: 2.0)
+│   ├── pressed: BorderSide(color: Color(0xFF2E7D32), width: 2.0)
+│   └── disabled: BorderSide(color: Color(0xFFBDBDBD), width: 2.0)
+├── overlayColor: MaterialStateProperty
+│   ├── hovered: Color(0xFFE8F5E8)
+│   └── pressed: Color(0xFF4CAF50)
+├── shape: RoundedRectangleBorder(borderRadius: 12.0)
+├── padding: EdgeInsets.symmetric(horizontal: 22, vertical: 10)
+└── minimumSize: Size(0, 48)
+```
+
+### TextButton 样式
+**使用场景**: 轻量级操作
+
+**ButtonStyle 配置**:
+```
+TextButtonTheme:
+├── backgroundColor: MaterialStateProperty.all(Colors.transparent)
+├── foregroundColor: MaterialStateProperty
+│   ├── default: Color(0xFF4CAF50)
+│   └── disabled: Color(0xFFBDBDBD)
+├── overlayColor: MaterialStateProperty
+│   ├── hovered: Color(0xFFE8F5E8)
+│   └── pressed: Color(0xFFA5D6A7)
+├── shape: RoundedRectangleBorder(borderRadius: 8.0)
+├── padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)
+└── minimumSize: Size(0, 36)
+```
+
+### FloatingActionButton 样式
+**使用场景**: 主要操作快捷入口
+
+**配置**:
+```
+FloatingActionButtonTheme:
+├── backgroundColor: Color(0xFF4CAF50)
+├── foregroundColor: Colors.white
+├── elevation: 4.0
+├── highlightElevation: 8.0
+├── shape: CircleBorder()
+├── sizeConstraints: BoxConstraints(minWidth: 56, minHeight: 56)
+
+Small Variant:
+├── sizeConstraints: BoxConstraints(minWidth: 40, minHeight: 40)
+├── elevation: 2.0
+└── highlightElevation: 4.0
+
+Extended Variant:
+├── shape: RoundedRectangleBorder(borderRadius: 28.0)
+├── padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12)
+└── textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
+```
+
+### IconButton 样式
+**使用场景**: 工具栏、导航栏图标
+
+**配置**:
+```
+IconButtonTheme:
+├── color: Color(0xFF424242)
+├── highlightColor: Color(0xFFE8F5E8)
+├── splashColor: Color(0xFFA5D6A7)
+├── iconSize: 24.0
+├── constraints: BoxConstraints(minWidth: 48, minHeight: 48)
+└── padding: EdgeInsets.all(12)
+```
+
+---
+
+## 📝 Flutter 输入框组件设计
+
+### TextField / TextFormField 样式
+**InputDecorationTheme 配置**:
+```
+InputDecorationTheme:
+├── filled: true
+├── fillColor: MaterialStateProperty
+│   ├── default: Colors.white
+│   ├── focused: Colors.white
+│   ├── error: Color(0xFFFFF5F5)
+│   └── disabled: Color(0xFFF5F5F5)
+├── border: OutlineInputBorder
+│   ├── borderRadius: BorderRadius.circular(12)
+│   ├── borderSide: BorderSide(color: Color(0xFFE0E0E0), width: 1.0)
+├── focusedBorder: OutlineInputBorder
+│   ├── borderRadius: BorderRadius.circular(12)
+│   ├── borderSide: BorderSide(color: Color(0xFF4CAF50), width: 2.0)
+├── errorBorder: OutlineInputBorder
+│   ├── borderRadius: BorderRadius.circular(12)
+│   ├── borderSide: BorderSide(color: Color(0xFFE53935), width: 2.0)
+├── disabledBorder: OutlineInputBorder
+│   ├── borderRadius: BorderRadius.circular(12)
+│   ├── borderSide: BorderSide(color: Color(0xFFE0E0E0), width: 1.0)
+├── contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14)
+├── hintStyle: TextStyle(color: Color(0xFF757575), fontSize: 16)
+├── labelStyle: TextStyle(color: Color(0xFF424242), fontSize: 14)
+├── errorStyle: TextStyle(color: Color(0xFFE53935), fontSize: 12)
+└── helperStyle: TextStyle(color: Color(0xFF757575), fontSize: 12)
+```
+
+### 搜索输入框样式
+**自定义配置**:
+```
+Search TextField:
+├── decoration: InputDecoration
+│   ├── filled: true
+│   ├── fillColor: Color(0xFFE8F5E8)
+│   ├── border: OutlineInputBorder
+│   │   ├── borderRadius: BorderRadius.circular(25)
+│   │   └── borderSide: BorderSide.none
+│   ├── focusedBorder: OutlineInputBorder
+│   │   ├── borderRadius: BorderRadius.circular(25)
+│   │   └── borderSide: BorderSide(color: Color(0xFF4CAF50), width: 1.0)
+│   ├── prefixIcon: Icon(Icons.search, color: Color(0xFF757575))
+│   ├── contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+│   ├── hintText: "搜索菜谱或食材..."
+│   └── hintStyle: TextStyle(color: Color(0xFF757575))
+```
+
+### 数字输入框设计
+**Row + TextField + IconButton 组合**:
+```
+Number Input Layout:
+├── Container
+│   ├── decoration: BoxDecoration
+│   │   ├── color: Colors.white
+│   │   ├── border: Border.all(color: Color(0xFFE0E0E0))
+│   │   └── borderRadius: BorderRadius.circular(12)
+│   ├── child: Row
+│   │   ├── IconButton (minus)
+│   │   │   ├── icon: Icon(Icons.remove)
+│   │   │   ├── color: Color(0xFF4CAF50)
+│   │   │   └── backgroundColor: Color(0xFFE8F5E8)
+│   │   ├── Expanded(TextField)
+│   │   │   ├── textAlign: TextAlign.center
+│   │   │   ├── keyboardType: TextInputType.number
+│   │   │   └── decoration: InputDecoration(border: InputBorder.none)
+│   │   └── IconButton (plus)
+│   │       ├── icon: Icon(Icons.add)
+│   │       ├── color: Color(0xFF4CAF50)
+│   │       └── backgroundColor: Color(0xFFE8F5E8)
+```
+
+---
+
+## 🍽️ 菜谱展示组件设计
+
+### 菜谱卡片 Widget 设计
+
+#### 横向菜谱卡片 (RecipeHorizontalCard)
+**组件结构**:
+```
+Container
+├── decoration: BoxDecoration
+│   ├── color: Colors.white
+│   ├── borderRadius: BorderRadius.circular(16)
+│   └── boxShadow: [BoxShadow(color: Color(0x10000000), blurRadius: 8, offset: Offset(0, 2))]
+├── child: InkWell
+│   ├── onTap: () => onRecipeTap
+│   ├── borderRadius: BorderRadius.circular(16)
+│   ├── child: Padding(16)
+│   │   └── Row
+│   │       ├── ClipRRect (食材图片)
+│   │       │   ├── borderRadius: BorderRadius.circular(12)
+│   │       │   ├── child: Container(80x80)
+│   │       │   │   ├── color: Color(0xFFE8F5E8) // 占位色
+│   │       │   │   └── child: Image.asset() / CachedNetworkImage
+│   │       ├── SizedBox(width: 16)
+│   │       ├── Expanded
+│   │       │   └── Column(crossAxisAlignment: CrossAxisAlignment.start)
+│   │       │       ├── Text (菜谱名称)
+│   │       │       │   ├── style: Theme.of(context).textTheme.headlineMedium
+│   │       │       │   ├── maxLines: 1
+│   │       │       │   └── overflow: TextOverflow.ellipsis
+│   │       │       ├── SizedBox(height: 4)
+│   │       │       ├── Text (菜谱描述)
+│   │       │       │   ├── style: Theme.of(context).textTheme.bodyMedium
+│   │       │       │   ├── maxLines: 2
+│   │       │       │   └── overflow: TextOverflow.ellipsis
+│   │       │       ├── SizedBox(height: 8)
+│   │       │       └── Row (元数据)
+│   │       │           ├── Icon + Text (难度)
+│   │       │           ├── SizedBox(width: 12)
+│   │       │           ├── Icon + Text (时间)
+│   │       │           ├── SizedBox(width: 12)
+│   │       │           └── Icon + Text (份量)
+│   │       └── Column (右侧状态)
+│   │           ├── Container (匹配度标识)
+│   │           │   ├── decoration: BoxDecoration
+│   │           │   │   ├── color: Color(0xFFE8F5E8)
+│   │           │   │   └── borderRadius: BorderRadius.circular(12)
+│   │           │   ├── padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+│   │           │   └── child: Text("85%匹配")
+│   │           ├── SizedBox(height: 8)
+│   │           └── IconButton (收藏)
+│   │               ├── icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border)
+│   │               ├── color: isFavorite ? Colors.red : Color(0xFF757575)
+│   │               └── constraints: BoxConstraints(minWidth: 32, minHeight: 32)
+```
+
+#### 网格菜谱卡片 (RecipeGridCard)
+**组件结构**:
+```
+Container
+├── decoration: BoxDecoration
+│   ├── color: Colors.white
+│   ├── borderRadius: BorderRadius.circular(16)
+│   └── boxShadow: [BoxShadow(color: Color(0x10000000), blurRadius: 8, offset: Offset(0, 2))]
+├── child: InkWell
+│   ├── onTap: () => onRecipeTap
+│   ├── borderRadius: BorderRadius.circular(16)
+│   └── child: Column
+│       ├── Stack (图片区域)
+│       │   ├── ClipRRect
+│       │   │   ├── borderRadius: BorderRadius.vertical(top: Radius.circular(16))
+│       │   │   └── child: Container(height: 160)
+│       │   │       ├── color: Color(0xFFE8F5E8)
+│       │   │       └── child: Image.asset() // 菜谱图片
+│       │   ├── Positioned(top: 12, left: 12) // 难度标识
+│       │   │   └── Container
+│       │   │       ├── decoration: BoxDecoration
+│       │   │       │   ├── color: Colors.white.withOpacity(0.9)
+│       │   │       │   └── borderRadius: BorderRadius.circular(12)
+│       │   │       ├── padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+│       │   │       └── child: Text("简单", style: TextStyle(fontSize: 12))
+│       │   └── Positioned(top: 12, right: 12) // 收藏按钮
+│       │       └── Container(32x32)
+│       │           ├── decoration: BoxDecoration
+│       │           │   ├── color: Colors.white.withOpacity(0.9)
+│       │           │   └── borderRadius: BorderRadius.circular(16)
+│       │           └── child: IconButton
+│       │               ├── icon: Icon(Icons.favorite_border, size: 18)
+│       │               └── onPressed: () => onFavoriteToggle
+│       └── Padding(16)
+│           └── Column(crossAxisAlignment: CrossAxisAlignment.start)
+│               ├── Text (菜谱名称)
+│               │   ├── style: Theme.of(context).textTheme.bodyLarge
+│               │   ├── maxLines: 1
+│               │   └── overflow: TextOverflow.ellipsis
+│               ├── SizedBox(height: 4)
+│               ├── Wrap (标签区域)
+│               │   ├── spacing: 8
+│               │   ├── runSpacing: 4
+│               │   └── children: [
+│               │       Container (标签)
+│               │       ├── decoration: BoxDecoration
+│               │       │   ├── color: Color(0xFFDCEDC8)
+│               │       │   └── borderRadius: BorderRadius.circular(8)
+│               │       ├── padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2)
+│               │       └── child: Text("川菜", style: TextStyle(fontSize: 10))
+│               │   ]
+│               ├── SizedBox(height: 12)
+│               └── Row (底部信息)
+│                   ├── Expanded
+│                   │   └── Row
+│                   │       ├── Icon(Icons.schedule, size: 14) + Text("30分钟")
+│                   │       ├── SizedBox(width: 12)
+│                   │       └── Icon(Icons.local_fire_department, size: 14) + Text("简单")
+│                   └── Text("85%", style: TextStyle(color: Color(0xFF4CAF50), fontWeight: FontWeight.w600))
+```
+
+### 菜谱详情头部 (RecipeDetailHeader)
+**组件结构**:
+```
+Column
+├── Stack (英雄图片区域)
+│   ├── Container(height: 280)
+│   │   ├── decoration: BoxDecoration
+│   │   │   └── gradient: LinearGradient([Color(0xFFE8F5E8), Color(0xFFA5D6A7)])
+│   │   └── child: Image.asset() // 菜谱大图
+│   ├── Container (渐变遮罩)
+│   │   ├── height: 280
+│   │   └── decoration: BoxDecoration
+│   │       └── gradient: LinearGradient(
+│   │           begin: Alignment.topCenter,
+│   │           end: Alignment.bottomCenter,
+│   │           colors: [Colors.transparent, Colors.black.withOpacity(0.6)]
+│   │       )
+│   ├── Positioned(top: 20, left: 20, right: 20) // 顶部操作栏
+│   │   └── Row(mainAxisAlignment: MainAxisAlignment.spaceBetween)
+│   │       ├── Container(44x44) // 返回按钮
+│   │       │   ├── decoration: BoxDecoration
+│   │       │   │   ├── color: Colors.white.withOpacity(0.9)
+│   │       │   │   └── borderRadius: BorderRadius.circular(22)
+│   │       │   └── child: IconButton(Icons.arrow_back)
+│   │       └── Row // 右侧操作按钮组
+│   │           ├── Container(44x44) // 分享按钮
+│   │           └── Container(44x44) // 更多按钮
+│   └── Positioned(bottom: -30, left: 20, right: 20) // 信息卡片
+│       └── Container
+│           ├── decoration: BoxDecoration
+│           │   ├── color: Colors.white
+│           │   ├── borderRadius: BorderRadius.circular(20)
+│           │   └── boxShadow: [BoxShadow(color: Color(0x20000000), blurRadius: 16, offset: Offset(0, 4))]
+│           └── child: Padding(24)
+│               └── Column
+│                   ├── Text (菜谱名称)
+│                   │   └── style: Theme.of(context).textTheme.displayMedium
+│                   ├── SizedBox(height: 8)
+│                   ├── Row (评分区域)
+│                   │   ├── Row (星星评分)
+│                   │   └── Text("4.8分 (128人评价)")
+│                   ├── SizedBox(height: 16)
+│                   ├── Container (分割线)
+│                   ├── SizedBox(height: 16)
+│                   ├── Row (基本信息)
+│                   │   ├── Expanded (难度)
+│                   │   ├── Expanded (时长)
+│                   │   └── Expanded (份量)
+│                   ├── SizedBox(height: 16)
+│                   ├── Container (分割线)
+│                   ├── SizedBox(height: 16)
+│                   └── Container (匹配状态)
+│                       ├── decoration: BoxDecoration
+│                       │   ├── color: Color(0xFFE8F5E8)
+│                       │   ├── border: Border.all(color: Color(0xFF4CAF50))
+│                       │   └── borderRadius: BorderRadius.circular(12)
+│                       ├── padding: EdgeInsets.all(16)
+│                       └── child: Column
+│                           ├── Text("食材匹配度85%", style: TextStyle(color: Color(0xFF4CAF50)))
+│                           └── Text("您已有8/10种食材", style: TextStyle(fontSize: 12))
+└── SizedBox(height: 50) // 为悬浮卡片预留空间
+```
+
+---
+
+## 🥕 食材相关组件设计
+
+### 食材列表项 (IngredientListTile)
+**组件结构**:
+```
+Dismissible // 支持滑动删除
+├── key: Key(ingredient.id)
+├── direction: DismissDirection.endToStart
+├── background: Container (滑动背景)
+│   ├── color: Colors.red
+│   ├── alignment: Alignment.centerRight
+│   ├── padding: EdgeInsets.only(right: 20)
+│   └── child: Icon(Icons.delete, color: Colors.white)
+├── child: Container
+│   ├── margin: EdgeInsets.symmetric(horizontal: 20, vertical: 6)
+│   ├── decoration: BoxDecoration
+│   │   ├── color: Colors.white
+│   │   ├── borderRadius: BorderRadius.circular(12)
+│   │   └── boxShadow: [BoxShadow(color: Color(0x08000000), blurRadius: 4, offset: Offset(0, 1))]
+│   └── child: ListTile
+│       ├── leading: Container(48x48) // 食材图标
+│       │   ├── decoration: BoxDecoration
+│       │   │   ├── color: Color(0xFFE8F5E8)
+│       │   │   └── borderRadius: BorderRadius.circular(24)
+│       │   └── child: Center
+│       │       └── Text("🥕", style: TextStyle(fontSize: 24)) // 食材emoji
+│       ├── title: Text (食材名称)
+│       │   └── style: Theme.of(context).textTheme.bodyLarge
+│       ├── subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start)
+│       │   ├── Row
+│       │   │   ├── Text("2根 约400g", style: bodyMedium)
+│       │   │   ├── SizedBox(width: 12)
+│       │   │   └── Text("3天前购买", style: bodySmall)
+│       │   └── Row
+│       │       ├── Icon(Icons.location_on, size: 12)
+│       │       └── Text("冰箱保鲜层", style: bodySmall)
+│       ├── trailing: Column(mainAxisAlignment: MainAxisAlignment.center)
+│       │   ├── Container(12x12) // 状态指示点
+│       │   │   ├── decoration: BoxDecoration
+│       │   │   │   ├── color: expiryStatus.color // 根据状态变色
+│       │   │   │   └── borderRadius: BorderRadius.circular(6)
+│       │   ├── SizedBox(height: 8)
+│       │   └── Text (到期天数)
+│       │       ├── style: TextStyle(fontSize: 12, color: expiryStatus.color)
+│       │       └── textAlign: TextAlign.center
+│       └── onTap: () => onIngredientTap
+```
+
+### 食材分类筛选 (CategoryFilterChips)
+**组件结构**:
+```
+Container
+├── height: 56
+├── padding: EdgeInsets.symmetric(vertical: 8)
+├── child: ListView.builder (horizontal: true)
+│   ├── padding: EdgeInsets.symmetric(horizontal: 20)
+│   ├── itemBuilder: (context, index) => 
+│   │   Container
+│   │   ├── margin: EdgeInsets.only(right: 12)
+│   │   └── child: FilterChip
+│   │       ├── label: Text(category.name)
+│   │       ├── selected: category.isSelected
+│   │       ├── onSelected: (selected) => onCategoryChanged
+│   │       ├── backgroundColor: Colors.white
+│   │       ├── selectedColor: Color(0xFF4CAF50)
+│   │       ├── checkmarkColor: Colors.white
+│   │       ├── labelStyle: TextStyle
+│   │       │   ├── color: category.isSelected ? Colors.white : Color(0xFF424242)
+│   │       │   ├── fontSize: 14
+│   │       │   └── fontWeight: FontWeight.w500
+│   │       ├── side: BorderSide
+│   │       │   ├── color: category.isSelected ? Color(0xFF4CAF50) : Color(0xFFE0E0E0)
+│   │       │   └── width: 1.0
+│   │       └── shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+```
+
+### 过期提醒卡片 (ExpiryAlertCard)
+**组件结构**:
+```
+Container
+├── margin: EdgeInsets.all(20)
+├── decoration: BoxDecoration
+│   ├── gradient: LinearGradient([Color(0xFFFFF3E0), Color(0xFFFFF8E1)])
+│   ├── border: Border.all(color: Color(0xFFFF9800), width: 1.0)
+│   ├── borderRadius: BorderRadius.circular(16)
+│   └── boxShadow: [BoxShadow(color: Color(0x10FF9800), blurRadius: 8, offset: Offset(0, 2))]
+├── child: InkWell
+│   ├── onTap: () => onAlertTap
+│   ├── borderRadius: BorderRadius.circular(16)
+│   └── child: Padding(20)
+│       └── Column(crossAxisAlignment: CrossAxisAlignment.start)
+│           ├── Row
+│           │   ├── Container(32x32) // 警告图标
+│           │   │   ├── decoration: BoxDecoration
+│           │   │   │   ├── color: Color(0xFFFF9800)
+│           │   │   │   └── borderRadius: BorderRadius.circular(16)
+│           │   │   └── child: Icon(Icons.warning, color: Colors.white, size: 20)
+│           │   ├── SizedBox(width: 12)
+│           │   ├── Expanded
+│           │   │   └── Column(crossAxisAlignment: CrossAxisAlignment.start)
+│           │   │       ├── Text("食材提醒", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))
+│           │   │       └── Text("3样食材即将过期", style: TextStyle(fontSize: 14))
+│           │   └── Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF757575))
+│           ├── SizedBox(height: 12)
+│           ├── Container(height: 1, color: Color(0xFFFFE0B2)) // 分割线
+│           ├── SizedBox(height: 12)
+│           └── Row (即将过期的食材列表)
+│               ├── Expanded
+│               │   └── Text("胡萝卜(还剩1天)、西兰花(还剩2天)、番茄(今天到期)")
+│               │       ├── style: TextStyle

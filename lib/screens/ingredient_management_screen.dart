@@ -23,10 +23,8 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('食材管理'),
-        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.category),
@@ -39,7 +37,7 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
           // 搜索框
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppColors.backgroundSecondary,
+            color: AppColors.surfaceVariant,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -177,6 +175,20 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
       ingredients = ingredients.where((i) => i.categoryId == _selectedCategoryId).toList();
     }
 
+    // 按保质期排序：快过期的在前面
+    ingredients.sort((a, b) {
+      final aDays = a.daysUntilExpiry;
+      final bDays = b.daysUntilExpiry;
+      
+      // 没有保质期的放在最后
+      if (aDays == null && bDays == null) return 0;
+      if (aDays == null) return 1;
+      if (bDays == null) return -1;
+      
+      // 按剩余天数升序排列（天数少的在前）
+      return aDays.compareTo(bDays);
+    });
+
     return ingredients;
   }
 
@@ -212,24 +224,11 @@ class _IngredientManagementScreenState extends State<IngredientManagementScreen>
   }
 
   void _deleteIngredient(String id) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除食材'),
-        content: const Text('确定要删除这个食材吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Provider.of<DataProvider>(context, listen: false).deleteIngredient(id);
-              Navigator.pop(context);
-            },
-            child: const Text('删除'),
-          ),
-        ],
+    Provider.of<DataProvider>(context, listen: false).deleteIngredient(id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('食材已删除'),
+        duration: Duration(seconds: 2),
       ),
     );
   }

@@ -21,10 +21,8 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('做菜日历'),
-        backgroundColor: AppColors.backgroundSecondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.today),
@@ -42,7 +40,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
           // 月份导航
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppColors.backgroundSecondary,
+            color: AppColors.surfaceVariant,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -208,7 +206,7 @@ class _CookingCalendarScreenState extends State<CookingCalendarScreen> {
               color: isSelected 
                   ? AppColors.primary
                   : isToday 
-                      ? AppColors.backgroundSecondary
+                      ? AppColors.surfaceVariant
                       : Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(

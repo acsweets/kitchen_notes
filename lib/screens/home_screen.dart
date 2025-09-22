@@ -5,6 +5,8 @@ import '../providers/data_provider.dart';
 import '../models/recipe.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/category_tabs.dart';
+import '../widgets/custom_text_field.dart';
+import '../widgets/custom_buttons.dart';
 import 'add_recipe_screen.dart';
 import 'recipe_detail_screen.dart';
 import 'favorite_recipes_screen.dart';
@@ -24,11 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('灶边记', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.backgroundSecondary,
-        elevation: 0,
+        title: Text('灶边记', style: Theme.of(context).textTheme.displaySmall),
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite),
@@ -48,22 +47,18 @@ class _HomeScreenState extends State<HomeScreen> {
           // 搜索框
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppColors.backgroundSecondary,
-            child: TextField(
+            child: SearchTextField(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: '搜索菜谱...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
-                ),
-              ),
+              hintText: '搜索菜谱...',
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
+                });
+              },
+              onClear: () {
+                _searchController.clear();
+                setState(() {
+                  _searchQuery = '';
                 });
               },
             ),
@@ -99,9 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       '常做菜谱',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -131,10 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       Text(
                                         recipe.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
+                                        style: Theme.of(context).textTheme.headlineMedium,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -142,14 +134,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Row(
                                         children: [
                                           Icon(Icons.local_fire_department, 
-                                               size: 16, color: Colors.orange[700]),
+                                               size: 16, color: AppColors.warning),
                                           const SizedBox(width: 4),
-                                          Text('做过${recipe.cookCount}次'),
+                                          Text('做过${recipe.cookCount}次',
+                                               style: Theme.of(context).textTheme.bodySmall),
                                           const Spacer(),
                                           if (recipe.rating > 0) ...[
-                                            Icon(Icons.star, size: 16, color: Colors.amber[700]),
+                                            Icon(Icons.star, size: 16, color: AppColors.warning),
                                             const SizedBox(width: 2),
-                                            Text(recipe.rating.toStringAsFixed(1)),
+                                            Text(recipe.rating.toStringAsFixed(1),
+                                                 style: Theme.of(context).textTheme.bodySmall),
                                           ],
                                         ],
                                       ),
@@ -175,14 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 List<Recipe> recipes = _getFilteredRecipes(dataProvider);
                 
                 if (recipes.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.restaurant_menu, size: 64, color: Colors.grey),
-                        SizedBox(height: 16),
+                        const Icon(Icons.restaurant_menu, size: 64, color: AppColors.textTertiary),
+                        const SizedBox(height: 16),
                         Text('还没有菜谱，快来添加第一道菜吧！', 
-                             style: TextStyle(color: Colors.grey)),
+                             style: Theme.of(context).textTheme.bodyMedium),
                       ],
                     ),
                   );
@@ -211,15 +205,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
           );
         },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        icon: Icons.add,
+        tooltip: '添加菜谱',
       ),
     );
   }
