@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 import '../theme/app_colors.dart';
 import '../models/recipe.dart';
 import '../providers/data_provider.dart';
+import '../widgets/full_screen_image_viewer.dart';
 import 'add_recipe_screen.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
@@ -12,25 +14,26 @@ class RecipeDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(recipe.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddRecipeScreen(recipe: recipe),
-                ),
-              );
-            },
-          ),
-          Consumer<DataProvider>(
-            builder: (context, dataProvider, child) {
-              final currentRecipe = dataProvider.recipes.firstWhere((r) => r.id == recipe.id);
-              return IconButton(
+    return Consumer<DataProvider>(
+      builder: (context, dataProvider, child) {
+        final currentRecipe = dataProvider.recipes.firstWhere((r) => r.id == recipe.id);
+        
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(currentRecipe.name),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddRecipeScreen(recipe: currentRecipe),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
                 icon: Icon(
                   currentRecipe.isFavorite ? Icons.favorite : Icons.favorite_border,
                   color: currentRecipe.isFavorite ? Colors.red : null,
@@ -38,253 +41,262 @@ class RecipeDetailScreen extends StatelessWidget {
                 onPressed: () {
                   dataProvider.toggleFavorite(recipe.id);
                 },
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: ListView(
-        children: [
-          // 封面图片
-          if (recipe.coverImage != null)
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(recipe.coverImage!),
-                  fit: BoxFit.cover,
+          body: ListView(
+            children: [
+              // 封面图片
+              GestureDetector(
+                onTap: currentRecipe.coverImage != null ? () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FullScreenImageViewer(imagePath: currentRecipe.coverImage!),
+                  ),
+                ) : null,
+                child: Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primaryContainer, AppColors.surfaceVariant],
+                    ),
+                  ),
+                  child: currentRecipe.coverImage != null
+                      ? Image.file(
+                          File(currentRecipe.coverImage!),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.restaurant_menu, size: 80, color: AppColors.primary);
+                          },
+                        )
+                      : Icon(Icons.restaurant_menu, size: 80, color: AppColors.primary),
                 ),
               ),
-            )
-          else
-            Container(
-              height: 200,
-              color: AppColors.surfaceVariant,
-              child: const Icon(Icons.restaurant, size: 80, color: Colors.grey),
-            ),
 
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 菜谱信息
-                Row(
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            recipe.name,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              if (recipe.cookCount > 0) ...[
-                                Icon(Icons.local_fire_department, 
-                                     size: 20, color: Colors.orange[700]),
-                                const SizedBox(width: 4),
-                                Text('做过${recipe.cookCount}次'),
-                                const SizedBox(width: 16),
-                              ],
-                              if (recipe.rating > 0) ...[
-                                Icon(Icons.star, size: 20, color: Colors.amber[700]),
-                                const SizedBox(width: 4),
-                                Text(recipe.rating.toStringAsFixed(1)),
-                              ],
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _showCookingDialog(context);
-                      },
-                      icon: const Icon(Icons.restaurant_menu),
-                      label: const Text('我做了这道菜'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // 配料部分
-                const Text(
-                  '配料',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                
-                if (recipe.ingredients.isEmpty)
-                  const Text('暂无配料信息', style: TextStyle(color: Colors.grey))
-                else
-                  ...recipe.ingredients.map((ingredient) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                '${ingredient.name} ${ingredient.quantity} ${ingredient.unit}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-
-                const SizedBox(height: 24),
-
-                // 制作步骤
-                const Text(
-                  '制作步骤',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-
-                if (recipe.steps.isEmpty)
-                  const Text('暂无制作步骤', style: TextStyle(color: Colors.grey))
-                else
-                  ...recipe.steps.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final step = entry.value;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: AppColors.primary,
-                              child: Text(
-                                '${index + 1}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                step.description,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-
-                const SizedBox(height: 24),
-
-                // 备注部分
-                if (recipe.notes.isNotEmpty) ...[
-                  const Text(
-                    '备注',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF8DC),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.inputBorder),
-                    ),
-                    child: Text(
-                      recipe.notes,
-                      style: const TextStyle(fontSize: 16, height: 1.5),
-                    ),
-                  ),
-                ],
-
-                // 制作心得部分
-                Consumer<DataProvider>(
-                  builder: (context, dataProvider, child) {
-                    final cookingRecords = dataProvider.getCookingRecordsByRecipe(recipe.id);
-                    if (cookingRecords.isEmpty) return const SizedBox.shrink();
-                    
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    // 菜谱信息
+                    Row(
                       children: [
-                        const SizedBox(height: 24),
-                        const Text(
-                          '制作心得',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        ...cookingRecords.take(3).map((record) => Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.blue[200]!),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                currentRecipe.name,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              const SizedBox(height: 8),
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '${record.cookingDate.month}-${record.cookingDate.day}',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Row(
-                                        children: List.generate(5, (index) {
-                                          return Icon(
-                                            index < record.rating ? Icons.star : Icons.star_border,
-                                            size: 16,
-                                            color: Colors.amber,
-                                          );
-                                        }),
-                                      ),
-                                    ],
-                                  ),
-                                  if (record.notes.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      record.notes,
-                                      style: const TextStyle(fontSize: 14, height: 1.4),
-                                    ),
+                                  if (currentRecipe.cookCount > 0) ...[
+                                    Icon(Icons.local_fire_department, 
+                                         size: 20, color: Colors.orange[700]),
+                                    const SizedBox(width: 4),
+                                    Text('做过${currentRecipe.cookCount}次'),
+                                    const SizedBox(width: 16),
+                                  ],
+                                  if (currentRecipe.rating > 0) ...[
+                                    Icon(Icons.star, size: 20, color: Colors.amber[700]),
+                                    const SizedBox(width: 4),
+                                    Text(currentRecipe.rating.toStringAsFixed(1)),
                                   ],
                                 ],
                               ),
-                            )),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            _showCookingDialog(context);
+                          },
+                          icon: const Icon(Icons.restaurant_menu),
+                          label: const Text('我做了这道菜'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
                       ],
-                    );
-                  },
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // 配料部分
+                    const Text(
+                      '配料',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    if (currentRecipe.ingredients.isEmpty)
+                      const Text('暂无配料信息', style: TextStyle(color: Colors.grey))
+                    else
+                      ...currentRecipe.ingredients.map((ingredient) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    '${ingredient.name} ${ingredient.quantity} ${ingredient.unit}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+
+                    const SizedBox(height: 24),
+
+                    // 制作步骤
+                    const Text(
+                      '制作步骤',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+
+                    if (currentRecipe.steps.isEmpty)
+                      const Text('暂无制作步骤', style: TextStyle(color: Colors.grey))
+                    else
+                      ...currentRecipe.steps.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final step = entry.value;
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: AppColors.primary,
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    step.description,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+
+                    const SizedBox(height: 24),
+
+                    // 备注部分
+                    if (currentRecipe.notes.isNotEmpty) ...[
+                      const Text(
+                        '备注',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF8DC),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.inputBorder),
+                        ),
+                        child: Text(
+                          currentRecipe.notes,
+                          style: const TextStyle(fontSize: 16, height: 1.5),
+                        ),
+                      ),
+                    ],
+
+                    // 制作心得部分
+                    Consumer<DataProvider>(
+                      builder: (context, dataProvider, child) {
+                        final cookingRecords = dataProvider.getCookingRecordsByRecipe(recipe.id);
+                        if (cookingRecords.isEmpty) return const SizedBox.shrink();
+                        
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 24),
+                            const Text(
+                              '制作心得',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 12),
+                            ...cookingRecords.take(3).map((record) => Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.blue[200]!),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${record.cookingDate.month}-${record.cookingDate.day}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Row(
+                                            children: List.generate(5, (index) {
+                                              return Icon(
+                                                index < record.rating ? Icons.star : Icons.star_border,
+                                                size: 16,
+                                                color: Colors.amber,
+                                              );
+                                            }),
+                                          ),
+                                        ],
+                                      ),
+                                      if (record.notes.isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          record.notes,
+                                          style: const TextStyle(fontSize: 14, height: 1.4),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                )),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

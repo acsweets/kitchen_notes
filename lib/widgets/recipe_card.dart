@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 import '../models/recipe.dart';
 import '../providers/data_provider.dart';
+import '../theme/app_colors.dart';
+import '../widgets/full_screen_image_viewer.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
@@ -27,25 +30,45 @@ class RecipeCard extends StatelessWidget {
           child: Row(
             children: [
               // 封面图片
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color(0xFFE8D5B7),
-                ),
-                child: recipe.coverImage != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          recipe.coverImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.restaurant, size: 40);
-                          },
+              GestureDetector(
+                onTap: recipe.coverImage != null ? () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FullScreenImageViewer(imagePath: recipe.coverImage!),
+                  ),
+                ) : null,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [AppColors.primaryContainer, AppColors.surfaceVariant],
+                    ),
+                  ),
+                  child: recipe.coverImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(recipe.coverImage!),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.restaurant_menu,
+                                size: 32,
+                                color: AppColors.primary,
+                              );
+                            },
+                          ),
+                        )
+                      : Icon(
+                          Icons.restaurant_menu,
+                          size: 32,
+                          color: AppColors.primary,
                         ),
-                      )
-                    : const Icon(Icons.restaurant, size: 40, color: Colors.grey),
+                ),
               ),
               
               const SizedBox(width: 12),
@@ -57,43 +80,37 @@ class RecipeCard extends StatelessWidget {
                   children: [
                     Text(
                       recipe.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${recipe.ingredients.length}种食材 • ${recipe.steps.length}个步骤',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         if (recipe.cookCount > 0) ...[
                           Icon(Icons.local_fire_department, 
-                               size: 16, color: Colors.orange[700]),
+                               size: 16, color: AppColors.warning),
                           const SizedBox(width: 4),
                           Text(
                             '做过${recipe.cookCount}次',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.orange[700],
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppColors.warning,
                             ),
                           ),
                           const SizedBox(width: 12),
                         ],
                         if (recipe.rating > 0) ...[
-                          Icon(Icons.star, size: 16, color: Colors.amber[700]),
+                          Icon(Icons.star, size: 16, color: AppColors.warning),
                           const SizedBox(width: 4),
                           Text(
                             recipe.rating.toStringAsFixed(1),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.amber[700],
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppColors.warning,
                             ),
                           ),
                         ],
@@ -113,7 +130,7 @@ class RecipeCard extends StatelessWidget {
                     },
                     icon: Icon(
                       currentRecipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: currentRecipe.isFavorite ? Colors.red : Colors.grey,
+                      color: currentRecipe.isFavorite ? AppColors.error : AppColors.textTertiary,
                     ),
                   );
                 },

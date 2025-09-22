@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../theme/app_colors.dart';
 import '../providers/data_provider.dart';
 import '../models/recipe.dart';
@@ -8,6 +10,7 @@ import '../models/ingredient.dart';
 import '../models/recipe_step.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_buttons.dart';
+import '../widgets/full_screen_image_viewer.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   final Recipe? recipe; // 编辑模式传入菜谱
@@ -25,6 +28,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   String _selectedCategoryId = '';
   final List<Ingredient> _ingredients = [];
   final List<RecipeStep> _steps = [];
+  String? _coverImagePath;
   bool get _isEditing => widget.recipe != null;
 
   @override
@@ -42,6 +46,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     _selectedCategoryId = recipe.categoryId;
     _ingredients.addAll(recipe.ingredients);
     _steps.addAll(recipe.steps);
+    _coverImagePath = recipe.coverImage;
   }
 
   @override
@@ -104,6 +109,117 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   },
                 );
               },
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 菜谱图片
+            Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.inputBorder),
+              ),
+              child: _coverImagePath != null
+                  ? Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(_coverImagePath!),
+                            width: double.infinity,
+                            height: 200,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [AppColors.primaryContainer, AppColors.surfaceVariant],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(Icons.restaurant_menu, size: 64, color: AppColors.primary),
+                              );
+                            },
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenImageViewer(imagePath: _coverImagePath!),
+                            ),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            height: 200,
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                  onPressed: _showImageSourceDialog,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                                  onPressed: () {
+                                    setState(() {
+                                      _coverImagePath = null;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  : InkWell(
+                      onTap: _showImageSourceDialog,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.primaryContainer, AppColors.surfaceVariant],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 48, color: AppColors.primary),
+                            const SizedBox(height: 8),
+                            Text(
+                              '添加菜谱图片',
+                              style: TextStyle(color: AppColors.primary, fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '点击选择图片',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
             ),
             
             const SizedBox(height: 16),
@@ -242,7 +358,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           id: widget.recipe!.id,
           name: _nameController.text,
           categoryId: _selectedCategoryId,
-          coverImage: widget.recipe!.coverImage,
+          coverImage: _coverImagePath,
           ingredients: _ingredients,
           steps: _steps,
           cookCount: widget.recipe!.cookCount,
@@ -259,6 +375,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           id: const Uuid().v4(),
           name: _nameController.text,
           categoryId: _selectedCategoryId,
+          coverImage: _coverImagePath,
           ingredients: _ingredients,
           steps: _steps,
           createdAt: now,
@@ -271,6 +388,54 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       Navigator.pop(context);
     }
   }
+
+  void _showImageSourceDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('选择图片来源'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('拍照'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('从相册选择'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: source,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 80,
+    );
+    
+    if (image != null) {
+      setState(() {
+        _coverImagePath = image.path;
+      });
+    }
+  }
+
+
 
   @override
   void dispose() {
