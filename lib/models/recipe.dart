@@ -1,45 +1,18 @@
-import 'package:hive/hive.dart';
 import 'ingredient.dart';
 import 'recipe_step.dart';
 
-part 'recipe.g.dart';
-
-@HiveType(typeId: 3)
 class Recipe {
-  @HiveField(0)
   String id;
-
-  @HiveField(1)
   String name;
-
-  @HiveField(2)
   String categoryId;
-
-  @HiveField(3)
   String? coverImage;
-
-  @HiveField(4)
   List<Ingredient> ingredients;
-
-  @HiveField(5)
   List<RecipeStep> steps;
-
-  @HiveField(6)
   int cookCount;
-
-  @HiveField(7)
   double rating;
-
-  @HiveField(8)
   DateTime createdAt;
-
-  @HiveField(9)
   DateTime updatedAt;
-
-  @HiveField(10)
   bool isFavorite;
-
-  @HiveField(11)
   String notes;
 
   Recipe({
@@ -56,4 +29,36 @@ class Recipe {
     this.isFavorite = false,
     this.notes = '',
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'category_id': categoryId,
+      'cover_image': coverImage,
+      'cook_count': cookCount,
+      'rating': rating,
+      'created_at': createdAt.millisecondsSinceEpoch,
+      'updated_at': updatedAt.millisecondsSinceEpoch,
+      'is_favorite': isFavorite ? 1 : 0,
+      'notes': notes,
+    };
+  }
+
+  factory Recipe.fromMap(Map<String, dynamic> map, List<Ingredient> ingredients, List<RecipeStep> steps) {
+    return Recipe(
+      id: map['id'],
+      name: map['name'],
+      categoryId: map['category_id'],
+      coverImage: map['cover_image'],
+      ingredients: ingredients,
+      steps: steps,
+      cookCount: map['cook_count'],
+      rating: map['rating'],
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at']),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updated_at']),
+      isFavorite: map['is_favorite'] == 1,
+      notes: map['notes'] ?? '',
+    );
+  }
 }

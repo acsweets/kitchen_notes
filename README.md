@@ -51,7 +51,7 @@
 
 - **框架**: Flutter 3.6.2+
 - **状态管理**: Provider
-- **本地存储**: Hive
+- **本地存储**: SQLite
 - **图片处理**: image_picker
 - **搜索**: 拼音匹配支持
 
@@ -60,10 +60,10 @@
 ```yaml
 dependencies:
   provider: ^6.1.2          # 状态管理
-  hive: ^2.2.3              # 本地数据库
-  hive_flutter: ^1.1.0      # Hive Flutter支持
+  sqflite: ^2.4.1           # SQLite 数据库
   image_picker: ^1.0.7      # 图片选择
   path_provider: ^2.1.2     # 路径处理
+  path: ^1.9.0              # 路径工具
   uuid: ^4.3.3              # UUID生成
   lpinyin: ^2.0.3           # 拼音搜索
 ```
@@ -87,12 +87,7 @@ cd kitchen_notes
 flutter pub get
 ```
 
-3. 生成Hive适配器
-```bash
-flutter packages pub run build_runner build
-```
-
-4. 运行项目
+3. 运行项目
 ```bash
 # macOS
 flutter run -d macos
@@ -132,6 +127,8 @@ lib/
 ├── theme/                    # 主题配置
 │   ├── app_colors.dart      # 颜色定义
 │   └── app_theme.dart       # 主题配置
+├── database/                 # 数据库层
+│   └── database_helper.dart # SQLite 数据库助手
 ├── models/                   # 数据模型
 │   ├── recipe.dart          # 菜谱模型
 │   ├── ingredient.dart      # 食材模型
@@ -168,6 +165,7 @@ lib/
 - [x] 食材管理
 - [x] 做菜日历
 - [x] 现代化配色
+- [x] SQLite 数据库迁移
 - [ ] 数据备份恢复
 - [ ] 云同步功能
 - [ ] 性能优化

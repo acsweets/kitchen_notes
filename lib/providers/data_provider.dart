@@ -1,19 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+import '../database/database_helper.dart';
 import '../models/category.dart' as model;
 import '../models/ingredient.dart';
 import '../models/recipe.dart';
-import '../models/recipe_step.dart';
+
 import '../models/cooking_record.dart';
 import '../data/default_data.dart';
 import '../data/default_recipes.dart';
 
 class DataProvider extends ChangeNotifier {
-  late Box<model.Category> _categoryBox;
-  late Box<Ingredient> _ingredientBox;
-  late Box<Recipe> _recipeBox;
-  late Box<CookingRecord> _cookingRecordBox;
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
   List<model.Category> _categories = [];
   List<Ingredient> _ingredients = [];
@@ -34,70 +31,52 @@ class DataProvider extends ChangeNotifier {
       _categories.where((c) => c.type == 'ingredient').toList();
 
   Future<void> initializeData() async {
-    await Hive.initFlutter();
+    // 初始化数据库
+    await _dbHelper.database;
     
-    // 注册适配器
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(model.CategoryAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(IngredientAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(RecipeStepAdapter());
-    }
-    if (!Hive.isAdapterRegistered(3)) {
-      Hive.registerAdapter(RecipeAdapter());
-    }
-    if (!Hive.isAdapterRegistered(4)) {
-      Hive.registerAdapter(CookingRecordAdapter());
-    }
-
-    // 打开数据库
-    _categoryBox = await Hive.openBox<model.Category>('categories');
-    _ingredientBox = await Hive.openBox<Ingredient>('ingredients');
-    _recipeBox = await Hive.openBox<Recipe>('recipes');
-    _cookingRecordBox = await Hive.openBox<CookingRecord>('cooking_records');
-
     // 初始化默认数据
     await _initializeDefaultData();
     
     // 加载数据
-    _loadData();
+    await _loadData();
   }
 
   Future<void> _initializeDefaultData() async {
     print('Initializing default data...');
-    print('Category box length: ${_categoryBox.length}');
-    print('Ingredient box length: ${_ingredientBox.length}');
-    print('Recipe box length: ${_recipeBox.length}');
+    final categories = await _dbHelper.getCategories();
+    final ingredients = await _dbHelper.getIngredients();
+    final recipes = await _dbHelper.getRecipes();
+    
+    print('Category count: ${categories.length}');
+    print('Ingredient count: ${ingredients.length}');
+    print('Recipe count: ${recipes.length}');
     
     // 如果是首次启动，添加默认数据
-    if (_categoryBox.isEmpty) {
+    if (categories.isEmpty) {
       print('Adding default categories...');
       final defaultRecipeCategories = DefaultData.getDefaultRecipeCategories();
       final defaultIngredientCategories = DefaultData.getDefaultIngredientCategories();
       
       for (var category in [...defaultRecipeCategories, ...defaultIngredientCategories]) {
-        await _categoryBox.put(category.id, category);
+        await _dbHelper.insertCategory(category);
       }
       print('Added ${defaultRecipeCategories.length + defaultIngredientCategories.length} categories');
     }
 
-    if (_ingredientBox.isEmpty) {
+    if (ingredients.isEmpty) {
       print('Adding default ingredients...');
       final defaultIngredients = DefaultData.getDefaultIngredients();
       for (var ingredient in defaultIngredients) {
-        await _ingredientBox.put(ingredient.id, ingredient);
+        await _dbHelper.insertIngredient(ingredient);
       }
       print('Added ${defaultIngredients.length} ingredients');
     }
 
-    if (_recipeBox.isEmpty) {
+    if (recipes.isEmpty) {
       print('Adding default recipes...');
       final defaultRecipes = DefaultRecipes.getDefaultRecipes();
       for (var recipe in defaultRecipes) {
-        await _recipeBox.put(recipe.id, recipe);
+        await _dbHelper.insertRecipe(recipe);
       }
       print('Added ${defaultRecipes.length} recipes');
     }
@@ -105,33 +84,37 @@ class DataProvider extends ChangeNotifier {
   
   // 强制重新初始化默认数据（用于调试）
   Future<void> resetToDefaults() async {
-    await _categoryBox.clear();
-    await _ingredientBox.clear();
-    await _recipeBox.clear();
-    await _cookingRecordBox.clear();
+    // 清空所有表
+    final db = await _dbHelper.database;
+    await db.delete('cooking_records');
+    await db.delete('recipe_steps');
+    await db.delete('recipe_ingredients');
+    await db.delete('recipes');
+    await db.delete('ingredients');
+    await db.delete('categories');
     
     await _initializeDefaultData();
-    _loadData();
+    await _loadData();
   }
 
-  void _loadData() {
-    _categories = _categoryBox.values.toList();
-    _ingredients = _ingredientBox.values.toList();
-    _recipes = _recipeBox.values.toList();
-    _cookingRecords = _cookingRecordBox.values.toList();
+  Future<void> _loadData() async {
+    _categories = await _dbHelper.getCategories();
+    _ingredients = await _dbHelper.getIngredients();
+    _recipes = await _dbHelper.getRecipes();
+    _cookingRecords = await _dbHelper.getCookingRecords();
     notifyListeners();
   }
 
   // 添加菜谱
   Future<void> addRecipe(Recipe recipe) async {
-    await _recipeBox.put(recipe.id, recipe);
+    await _dbHelper.insertRecipe(recipe);
     _recipes.add(recipe);
     notifyListeners();
   }
 
   // 更新菜谱
   Future<void> updateRecipe(Recipe recipe) async {
-    await _recipeBox.put(recipe.id, recipe);
+    await _dbHelper.updateRecipe(recipe);
     final index = _recipes.indexWhere((r) => r.id == recipe.id);
     if (index != -1) {
       _recipes[index] = recipe;
@@ -141,7 +124,7 @@ class DataProvider extends ChangeNotifier {
 
   // 删除菜谱
   Future<void> deleteRecipe(String id) async {
-    await _recipeBox.delete(id);
+    await _dbHelper.deleteRecipe(id);
     _recipes.removeWhere((r) => r.id == id);
     notifyListeners();
   }
@@ -210,14 +193,14 @@ class DataProvider extends ChangeNotifier {
   
   // 添加分类
   Future<void> addCategory(model.Category category) async {
-    await _categoryBox.put(category.id, category);
+    await _dbHelper.insertCategory(category);
     _categories.add(category);
     notifyListeners();
   }
 
   // 更新分类
   Future<void> updateCategory(model.Category category) async {
-    await _categoryBox.put(category.id, category);
+    await _dbHelper.updateCategory(category);
     final index = _categories.indexWhere((c) => c.id == category.id);
     if (index != -1) {
       _categories[index] = category;
@@ -245,7 +228,7 @@ class DataProvider extends ChangeNotifier {
       }
     }
     
-    await _categoryBox.delete(id);
+    await _dbHelper.deleteCategory(id);
     _categories.removeWhere((c) => c.id == id);
     notifyListeners();
   }
@@ -254,14 +237,14 @@ class DataProvider extends ChangeNotifier {
   
   // 添加食材
   Future<void> addIngredient(Ingredient ingredient) async {
-    await _ingredientBox.put(ingredient.id, ingredient);
+    await _dbHelper.insertIngredient(ingredient);
     _ingredients.add(ingredient);
     notifyListeners();
   }
 
   // 更新食材
   Future<void> updateIngredient(Ingredient ingredient) async {
-    await _ingredientBox.put(ingredient.id, ingredient);
+    await _dbHelper.updateIngredient(ingredient);
     final index = _ingredients.indexWhere((i) => i.id == ingredient.id);
     if (index != -1) {
       _ingredients[index] = ingredient;
@@ -271,7 +254,7 @@ class DataProvider extends ChangeNotifier {
 
   // 删除食材
   Future<void> deleteIngredient(String id) async {
-    await _ingredientBox.delete(id);
+    await _dbHelper.deleteIngredient(id);
     _ingredients.removeWhere((i) => i.id == id);
     notifyListeners();
   }
@@ -298,14 +281,14 @@ class DataProvider extends ChangeNotifier {
   
   // 添加制作记录
   Future<void> addCookingRecord(CookingRecord record) async {
-    await _cookingRecordBox.put(record.id, record);
+    await _dbHelper.insertCookingRecord(record);
     _cookingRecords.add(record);
     notifyListeners();
   }
 
   // 更新制作记录
   Future<void> updateCookingRecord(CookingRecord record) async {
-    await _cookingRecordBox.put(record.id, record);
+    await _dbHelper.updateCookingRecord(record);
     final index = _cookingRecords.indexWhere((r) => r.id == record.id);
     if (index != -1) {
       _cookingRecords[index] = record;
@@ -315,7 +298,7 @@ class DataProvider extends ChangeNotifier {
 
   // 删除制作记录
   Future<void> deleteCookingRecord(String id) async {
-    await _cookingRecordBox.delete(id);
+    await _dbHelper.deleteCookingRecord(id);
     _cookingRecords.removeWhere((r) => r.id == id);
     notifyListeners();
   }
