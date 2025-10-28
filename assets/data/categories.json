@@ -1,0 +1,66 @@
+{
+  "recipe_categories": [
+    {
+      "id": "recipe_home",
+      "name": "家常菜",
+      "type": "recipe",
+      "isDefault": true
+    },
+    {
+      "id": "recipe_cold",
+      "name": "凉菜",
+      "type": "recipe",
+      "isDefault": true
+    },
+    {
+      "id": "recipe_dessert",
+      "name": "甜品",
+      "type": "recipe",
+      "isDefault": true
+    },
+    {
+      "id": "recipe_soup",
+      "name": "汤品",
+      "type": "recipe",
+      "isDefault": true
+    },
+    {
+      "id": "recipe_staple",
+      "name": "主食",
+      "type": "recipe",
+      "isDefault": true
+    }
+  ],
+  "ingredient_categories": [
+    {
+      "id": "ingredient_vegetable",
+      "name": "蔬菜类",
+      "type": "ingredient",
+      "isDefault": true
+    },
+    {
+      "id": "ingredient_meat",
+      "name": "肉类",
+      "type": "ingredient",
+      "isDefault": true
+    },
+    {
+      "id": "ingredient_seafood",
+      "name": "海鲜类",
+      "type": "ingredient",
+      "isDefault": true
+    },
+    {
+      "id": "ingredient_seasoning",
+      "name": "调味品",
+      "type": "ingredient",
+      "isDefault": true
+    },
+    {
+      "id": "ingredient_staple",
+      "name": "主食类",
+      "type": "ingredient",
+      "isDefault": true
+    }
+  ]
+}

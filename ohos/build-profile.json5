@@ -1,7 +1,20 @@
-
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "/Users/star/Documents/ac/hm/sign/kitchen.p12",
+          "storePassword": "0000001B26B974EBF3D28126A13B9A95735F4485E63C3D9873495BF6AF384516FA48C2B6885D76C7EF36B7",
+          "keyAlias": "kitchen",
+          "keyPassword": "0000001BFD0CB3BE56DFB230414159A53BBA76493A5E0719432E784F6728487E2864D01DB7467C0CB14916",
+          "signAlg": "SHA256withECDSA",
+          "profile": "/Users/star/Documents/ac/hm/证书/kitchenRelease.p7b",
+          "certpath": "/Users/star/Documents/ac/hm/证书/kitchen_r.cer"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

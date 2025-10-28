@@ -39,6 +39,16 @@ class Ingredient {
     );
   }
 
+  factory Ingredient.fromJson(Map<String, dynamic> json) {
+    return Ingredient(
+      id: json['id'],
+      name: json['name'],
+      categoryId: json['categoryId'],
+      quantity: json['quantity']?.toDouble() ?? 0.0,
+      unit: json['unit'] ?? '',
+    );
+  }
+
   // 计算距离过期还有多少天
   int? get daysUntilExpiry {
     if (expiryDate == null) return null;

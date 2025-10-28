@@ -28,4 +28,13 @@ class Category {
       isDefault: map['is_default'] == 1,
     );
   }
+
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+      id: json['id'],
+      name: json['name'],
+      type: json['type'],
+      isDefault: json['isDefault'] ?? false,
+    );
+  }
 }

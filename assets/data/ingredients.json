@@ -1,0 +1,122 @@
+{
+  "vegetables": [
+    {
+      "id": "ing_potato",
+      "name": "土豆",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "个"
+    },
+    {
+      "id": "ing_tomato",
+      "name": "西红柿",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "个"
+    },
+    {
+      "id": "ing_cucumber",
+      "name": "黄瓜",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "根"
+    },
+    {
+      "id": "ing_pepper",
+      "name": "青椒",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "个"
+    },
+    {
+      "id": "ing_onion",
+      "name": "大葱",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "根"
+    },
+    {
+      "id": "ing_ginger",
+      "name": "生姜",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "块"
+    },
+    {
+      "id": "ing_garlic",
+      "name": "大蒜",
+      "categoryId": "ingredient_vegetable",
+      "quantity": 0,
+      "unit": "瓣"
+    }
+  ],
+  "meat": [
+    {
+      "id": "ing_pork",
+      "name": "猪肉",
+      "categoryId": "ingredient_meat",
+      "quantity": 0,
+      "unit": "斤"
+    },
+    {
+      "id": "ing_chicken",
+      "name": "鸡肉",
+      "categoryId": "ingredient_meat",
+      "quantity": 0,
+      "unit": "斤"
+    },
+    {
+      "id": "ing_beef",
+      "name": "牛肉",
+      "categoryId": "ingredient_meat",
+      "quantity": 0,
+      "unit": "斤"
+    }
+  ],
+  "seasonings": [
+    {
+      "id": "ing_salt",
+      "name": "盐",
+      "categoryId": "ingredient_seasoning",
+      "quantity": 0,
+      "unit": "克"
+    },
+    {
+      "id": "ing_soy_sauce",
+      "name": "酱油",
+      "categoryId": "ingredient_seasoning",
+      "quantity": 0,
+      "unit": "毫升"
+    },
+    {
+      "id": "ing_vinegar",
+      "name": "醋",
+      "categoryId": "ingredient_seasoning",
+      "quantity": 0,
+      "unit": "毫升"
+    }
+  ],
+  "staples": [
+    {
+      "id": "ing_rice",
+      "name": "大米",
+      "categoryId": "ingredient_staple",
+      "quantity": 0,
+      "unit": "斤"
+    },
+    {
+      "id": "ing_flour",
+      "name": "面粉",
+      "categoryId": "ingredient_staple",
+      "quantity": 0,
+      "unit": "斤"
+    },
+    {
+      "id": "ing_egg",
+      "name": "鸡蛋",
+      "categoryId": "ingredient_staple",
+      "quantity": 0,
+      "unit": "个"
+    }
+  ]
+}
